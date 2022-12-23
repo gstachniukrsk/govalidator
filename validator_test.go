@@ -1,12 +1,12 @@
-package main_test
+package go_validator_test
 
 import (
-	"context"
-	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"testing"
-	"validator"
+"context"
+"encoding/json"
+"github.com/stretchr/testify/assert"
+"github.com/stretchr/testify/require"
+"testing"
+"validator"
 )
 
 func TestNewBasicValidator(t *testing.T) {

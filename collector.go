@@ -1,5 +1,4 @@
-package main
+package go_validator
 
 import "context"
-
 type Collector = func(ctx context.Context, path []string, err error)

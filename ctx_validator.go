@@ -1,7 +1,6 @@
-package main
+package go_validator
 
 import "context"
-
 type ContextValidator func(ctx context.Context, value any) (twigBlock bool, errs []error)
 
 func (v ContextValidator) Validate(ctx context.Context, value any) (twigBlock bool, errs []error) {

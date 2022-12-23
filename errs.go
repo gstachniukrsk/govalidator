@@ -1,7 +1,6 @@
-package main
+package go_validator
 
 import "fmt"
-
 type NotAFloatError struct {
 }
 

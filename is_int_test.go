@@ -1,10 +1,10 @@
-package main_test
+package go_validator_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"testing"
-	"validator"
+"github.com/stretchr/testify/assert"
+"github.com/stretchr/testify/require"
+"testing"
+"validator"
 )
 
 func TestIntValidator(t *testing.T) {

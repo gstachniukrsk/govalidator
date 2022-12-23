@@ -1,11 +1,10 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"fmt"
-	"reflect"
+"context"
+"fmt"
+"reflect"
 )
-
 type InvalidOptionError struct {
 	Options []any
 	Actual  any

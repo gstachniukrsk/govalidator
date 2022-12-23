@@ -1,5 +1,4 @@
-package main
-
+package go_validator
 type Definition struct {
 	Validator []ContextValidator
 	// for objects

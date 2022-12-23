@@ -1,9 +1,9 @@
-package main_test
+package go_validator_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"testing"
-	"validator"
+"github.com/stretchr/testify/assert"
+"testing"
+"validator"
 )
 
 func TestUpperCaseValidator(t *testing.T) {

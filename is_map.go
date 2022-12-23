@@ -1,7 +1,7 @@
-package main
+package go_validator
 
 import (
-	"context"
+"context"
 )
 
 // IsMapValidator is a validator that checks if the value is a map or pointer of a map.

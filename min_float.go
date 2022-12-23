@@ -1,7 +1,7 @@
-package main
+package go_validator
 
 import (
-	"context"
+"context"
 )
 
 // FloatIsLesserThanError is an error that is returned when the value is less than the min.

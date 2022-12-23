@@ -1,10 +1,10 @@
-package main_test
+package go_validator_test
 
 import (
-	"context"
-	"github.com/stretchr/testify/assert"
-	"testing"
-	"validator"
+"context"
+"github.com/stretchr/testify/assert"
+"testing"
+"validator"
 )
 
 func TestNumberValidator(t *testing.T) {

@@ -1,9 +1,9 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"fmt"
-	"strings"
+"context"
+"fmt"
+"strings"
 )
 
 // IntValidator is a validator that checks if the value is an integer of any type.

@@ -1,11 +1,10 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"fmt"
-	"regexp"
+"context"
+"fmt"
+"regexp"
 )
-
 type ValueNotMatchingPatternError struct {
 	Pattern string
 	Actual  string

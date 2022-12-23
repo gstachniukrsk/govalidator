@@ -5,7 +5,7 @@ It's a go library that aims to validate json data unmarshalled to `any`.
 ## Usage
 
 ```go
-package main
+package go-validator
 
 import (
 	"context"
@@ -220,7 +220,7 @@ func mustFormatErrs(errs map[string][]string) string {
 You can create your own validators by implementing the ContextValidator interface. The interface is defined as follows:
 
 ```go
-package main
+package go-validator
 
 import (
 	"context"
@@ -273,7 +273,7 @@ func SumOfMapPropertiesValidator(propertyName string, expectedSum int) validator
 ### Map/Object
 
 ```go
-package main
+package go-validator
 
 import (
     "validator/validator"

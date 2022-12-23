@@ -1,9 +1,9 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"fmt"
-	"strings"
+"context"
+"fmt"
+"strings"
 )
 
 func PathPresenter(glue string) PresenterFunc {

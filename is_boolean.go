@@ -1,7 +1,7 @@
-package main
+package go_validator
 
 import (
-	"context"
+"context"
 )
 
 // IsBooleanValidator is a validator that checks if the value is a boolean.

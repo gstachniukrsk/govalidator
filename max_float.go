@@ -1,7 +1,7 @@
-package main
+package go_validator
 
 import (
-	"context"
+"context"
 )
 
 // FloatIsGreaterThanError is an error that is returned when a float is greater than the max.

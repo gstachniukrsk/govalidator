@@ -1,8 +1,8 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"fmt"
+"context"
+"fmt"
 )
 
 // StringTooShortError is an error that is returned when a string is too short.

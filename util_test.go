@@ -1,4 +1,4 @@
-package main_test
+package go_validator_test
 
 import "testing"
 

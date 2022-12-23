@@ -1,8 +1,8 @@
-package main
+package go_validator
 
 import (
-	"github.com/stretchr/testify/assert"
-	"testing"
+"github.com/stretchr/testify/assert"
+"testing"
 )
 
 func TestMaxSizeValidator(t *testing.T) {

@@ -1,11 +1,10 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"fmt"
-	"strings"
+"context"
+"fmt"
+"strings"
 )
-
 type NotUpperCasedError struct {
 	Input string
 }

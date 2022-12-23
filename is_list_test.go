@@ -1,9 +1,9 @@
-package main
+package go_validator
 
 import (
-	"context"
-	"github.com/stretchr/testify/assert"
-	"testing"
+"context"
+"github.com/stretchr/testify/assert"
+"testing"
 )
 
 func TestIsListValidator(t *testing.T) {

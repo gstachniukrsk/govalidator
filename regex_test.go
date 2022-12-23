@@ -1,10 +1,10 @@
-package main_test
+package go_validator_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"regexp"
-	"testing"
-	"validator"
+"github.com/stretchr/testify/assert"
+"regexp"
+"testing"
+"validator"
 )
 
 func TestRegexpValidator(t *testing.T) {

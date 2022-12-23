@@ -1,7 +1,7 @@
-package main
+package go_validator
 
 import (
-	"context"
+"context"
 )
 
 func SimpleErrorPresenter() PresenterFunc {
