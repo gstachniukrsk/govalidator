@@ -1,10 +1,10 @@
 package go_validator_test
 
 import (
-"context"
-"github.com/stretchr/testify/assert"
-"testing"
-"validator"
+	"context"
+	"github.com/gstachniukrsk/go_validator"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestIsMapValidator(t *testing.T) {
@@ -35,7 +35,7 @@ func TestIsMapValidator(t *testing.T) {
 			args:          args{},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				main.NotAMapError{},
+				go_validator.NotAMapError{},
 			},
 		},
 		{
@@ -45,7 +45,7 @@ func TestIsMapValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				main.NotAMapError{},
+				go_validator.NotAMapError{},
 			},
 		},
 		{
@@ -55,13 +55,13 @@ func TestIsMapValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				main.NotAMapError{},
+				go_validator.NotAMapError{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTwigBlock, gotErrs := main.IsMapValidator(tt.args.ctx, tt.args.value)
+			gotTwigBlock, gotErrs := go_validator.IsMapValidator(tt.args.ctx, tt.args.value)
 			assert.Equalf(t, tt.wantTwigBlock, gotTwigBlock, "IsMapValidator(%v, %v)", tt.args.ctx, tt.args.value)
 			assert.Equalf(t, tt.wantErrs, gotErrs, "IsMapValidator(%v, %v)", tt.args.ctx, tt.args.value)
 		})

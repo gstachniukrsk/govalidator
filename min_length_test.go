@@ -1,9 +1,9 @@
 package go_validator_test
 
 import (
-"github.com/stretchr/testify/assert"
-"testing"
-"validator"
+	"github.com/gstachniukrsk/go_validator"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestMinLengthValidator(t *testing.T) {
@@ -25,7 +25,7 @@ func TestMinLengthValidator(t *testing.T) {
 			input:         "",
 			wantTwigBlock: false,
 			wantErrs: []error{
-				main.StringTooShortError{
+				go_validator.StringTooShortError{
 					MinLength: 5,
 				},
 			},
@@ -45,7 +45,7 @@ func TestMinLengthValidator(t *testing.T) {
 			input:         "1234",
 			wantTwigBlock: false,
 			wantErrs: []error{
-				main.StringTooShortError{
+				go_validator.StringTooShortError{
 					MinLength: 5,
 				},
 			},
@@ -72,13 +72,13 @@ func TestMinLengthValidator(t *testing.T) {
 			input:         nil,
 			wantTwigBlock: true,
 			wantErrs: []error{
-				main.NotAStringError{},
+				go_validator.NotAStringError{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := main.MinLengthValidator(tt.args.minLength)
+			v := go_validator.MinLengthValidator(tt.args.minLength)
 			gotTwigBlock, gotErrs := v(nil, tt.input)
 
 			assert.Equal(t, tt.wantTwigBlock, gotTwigBlock)
@@ -89,14 +89,14 @@ func TestMinLengthValidator(t *testing.T) {
 
 func TestStringTooShortError_Error(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
-		err := main.StringTooShortError{
+		err := go_validator.StringTooShortError{
 			MinLength: 5,
 		}
 		assert.Equal(t, "expected at least 5 characters", err.Error())
 	})
 
 	t.Run("non empty", func(t *testing.T) {
-		err := main.StringTooShortError{
+		err := go_validator.StringTooShortError{
 			MinLength: 5,
 		}
 		assert.Equal(t, "expected at least 5 characters", err.Error())

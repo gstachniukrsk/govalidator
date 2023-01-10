@@ -1,10 +1,10 @@
 package go_validator_test
 
 import (
-"github.com/stretchr/testify/assert"
-"regexp"
-"testing"
-"validator"
+	"github.com/gstachniukrsk/go_validator"
+	"github.com/stretchr/testify/assert"
+	"regexp"
+	"testing"
 )
 
 func TestRegexpValidator(t *testing.T) {
@@ -31,7 +31,7 @@ func TestRegexpValidator(t *testing.T) {
 				pattern: *regexp.MustCompile("^[a-z]+$"),
 			},
 			input:         1,
-			wantErrs:      []error{main.NotAStringError{}},
+			wantErrs:      []error{go_validator.NotAStringError{}},
 			wantTwigBrake: true,
 		},
 		{
@@ -41,7 +41,7 @@ func TestRegexpValidator(t *testing.T) {
 			},
 			input: "John",
 			wantErrs: []error{
-				main.ValueNotMatchingPatternError{
+				go_validator.ValueNotMatchingPatternError{
 					Pattern: "^[a-z]+$",
 					Actual:  "John",
 				},
@@ -51,7 +51,7 @@ func TestRegexpValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := main.RegexpValidator(tt.args.pattern)
+			v := go_validator.RegexpValidator(tt.args.pattern)
 
 			gotTwigBrake, gotErrs := v(nil, tt.input)
 
@@ -63,7 +63,7 @@ func TestRegexpValidator(t *testing.T) {
 
 func TestValueNotMatchingPatternError_Error(t *testing.T) {
 	t.Run("error message", func(t *testing.T) {
-		err := main.ValueNotMatchingPatternError{
+		err := go_validator.ValueNotMatchingPatternError{
 			Pattern: "^[a-z]+$",
 			Actual:  "John",
 		}
