@@ -1,4 +1,4 @@
-package go_validator
+package govalidator
 
 import "context"
 

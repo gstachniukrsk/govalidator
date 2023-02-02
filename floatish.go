@@ -1,9 +1,9 @@
-package go_validator
+package govalidator
 
 import (
-"context"
-"fmt"
-"strings"
+	"context"
+	"fmt"
+	"strings"
 )
 
 // FloatishValidator is a validator that checks if the value is a float64 or an int,

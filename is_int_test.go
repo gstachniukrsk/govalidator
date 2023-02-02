@@ -1,7 +1,7 @@
-package go_validator_test
+package govalidator_test
 
 import (
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -15,30 +15,30 @@ func TestIntValidator(t *testing.T) {
 		}
 
 		for i, v := range ds {
-			twig, errs := go_validator.IntValidator(nil, v)
+			twig, errs := govalidator.IntValidator(nil, v)
 			require.False(t, twig, "case #%d", i)
 			require.Emptyf(t, errs, "expected no errors, got %v", errs)
 		}
 	})
 
 	t.Run("not a int - string", func(t *testing.T) {
-		twig, errs := go_validator.IntValidator(nil, "1")
+		twig, errs := govalidator.IntValidator(nil, "1")
 		assert.True(t, twig)
-		assert.Equal(t, []error{go_validator.NotAnIntegerError{}}, errs)
+		assert.Equal(t, []error{govalidator.NotAnIntegerError{}}, errs)
 	})
 
 	t.Run("not a int - float with precision", func(t *testing.T) {
 		var f interface{}
 		f = 1.1
-		twig, errs := go_validator.IntValidator(nil, f)
+		twig, errs := govalidator.IntValidator(nil, f)
 		assert.True(t, twig)
-		assert.Equal(t, []error{go_validator.NotAnIntegerError{}}, errs)
+		assert.Equal(t, []error{govalidator.NotAnIntegerError{}}, errs)
 	})
 
 	t.Run("int - float without precision", func(t *testing.T) {
 		var f interface{}
 		f = 1.00000000
-		twig, errs := go_validator.IntValidator(nil, f)
+		twig, errs := govalidator.IntValidator(nil, f)
 		assert.False(t, twig)
 		assert.Empty(t, errs)
 	})

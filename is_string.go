@@ -1,7 +1,7 @@
-package go_validator
+package govalidator
 
 import (
-"context"
+	"context"
 )
 
 // StringValidator is a validator that checks if the value is a string or pointer of a string.

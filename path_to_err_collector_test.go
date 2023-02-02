@@ -1,8 +1,8 @@
-package go_validator_test
+package govalidator_test
 
 import (
 	"context"
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -10,16 +10,16 @@ import (
 
 func TestNewPathToErrCollector(t *testing.T) {
 	t.Run("new path to err collector", func(t *testing.T) {
-		out := go_validator.NewPathToErrCollector(go_validator.PathPresenter("."), go_validator.SimpleErrorPresenter())
+		out := govalidator.NewPathToErrCollector(govalidator.PathPresenter("."), govalidator.SimpleErrorPresenter())
 		assert.NotNil(t, out)
 	})
 }
 
 func Test_pathToErrCollector_Collect(t *testing.T) {
 	t.Run("collect, it's not a set", func(t *testing.T) {
-		c := go_validator.NewPathToErrCollector(go_validator.PathPresenter("."), go_validator.SimpleErrorPresenter())
-		c.Collect(context.Background(), []string{}, go_validator.RequiredError{})
-		c.Collect(context.Background(), []string{}, go_validator.RequiredError{})
+		c := govalidator.NewPathToErrCollector(govalidator.PathPresenter("."), govalidator.SimpleErrorPresenter())
+		c.Collect(context.Background(), []string{}, govalidator.RequiredError{})
+		c.Collect(context.Background(), []string{}, govalidator.RequiredError{})
 		assert.NotNil(t, c)
 
 		out := c.GetErrors()
@@ -33,9 +33,9 @@ func Test_pathToErrCollector_Collect(t *testing.T) {
 	})
 
 	t.Run("two fields", func(t *testing.T) {
-		c := go_validator.NewPathToErrCollector(go_validator.PathPresenter("."), go_validator.SimpleErrorPresenter())
-		c.Collect(context.Background(), []string{"a"}, go_validator.RequiredError{})
-		c.Collect(context.Background(), []string{"b"}, go_validator.RequiredError{})
+		c := govalidator.NewPathToErrCollector(govalidator.PathPresenter("."), govalidator.SimpleErrorPresenter())
+		c.Collect(context.Background(), []string{"a"}, govalidator.RequiredError{})
+		c.Collect(context.Background(), []string{"b"}, govalidator.RequiredError{})
 		assert.NotNil(t, c)
 
 		out := c.GetErrors()
@@ -50,7 +50,7 @@ func Test_pathToErrCollector_Collect(t *testing.T) {
 	})
 
 	t.Run("nothing collected", func(t *testing.T) {
-		c := go_validator.NewPathToErrCollector(go_validator.PathPresenter("."), go_validator.SimpleErrorPresenter())
+		c := govalidator.NewPathToErrCollector(govalidator.PathPresenter("."), govalidator.SimpleErrorPresenter())
 		assert.NotNil(t, c)
 
 		out := c.GetErrors()

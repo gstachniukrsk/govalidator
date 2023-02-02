@@ -1,6 +1,7 @@
-package go_validator
+package govalidator
 
 import "context"
+
 type pathToErrCollector struct {
 	errs          map[string][]string
 	pathPresenter PresenterFunc

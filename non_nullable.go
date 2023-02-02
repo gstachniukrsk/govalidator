@@ -1,7 +1,7 @@
-package go_validator
+package govalidator
 
 import (
-"context"
+	"context"
 )
 
 func NonNullableValidator(_ context.Context, value any) (twigBlock bool, errs []error) {

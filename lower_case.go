@@ -1,10 +1,11 @@
-package go_validator
+package govalidator
 
 import (
-"context"
-"fmt"
-"strings"
+	"context"
+	"fmt"
+	"strings"
 )
+
 type NotLowerCasedError struct {
 	Input string
 }

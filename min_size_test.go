@@ -1,7 +1,7 @@
-package go_validator_test
+package govalidator_test
 
 import (
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -26,7 +26,7 @@ func TestMinSizeValidator(t *testing.T) {
 			input:         []interface{}{},
 			wantTwigBlock: false,
 			wantErrs: []error{
-				go_validator.MinSizeError{
+				govalidator.MinSizeError{
 					MinSize:    5,
 					ActualSize: 0,
 				},
@@ -41,7 +41,7 @@ func TestMinSizeValidator(t *testing.T) {
 			input:         []interface{}{},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.MinSizeError{
+				govalidator.MinSizeError{
 					MinSize:    5,
 					ActualSize: 0,
 				},
@@ -78,7 +78,7 @@ func TestMinSizeValidator(t *testing.T) {
 			},
 			wantTwigBlock: false,
 			wantErrs: []error{
-				go_validator.MinSizeError{
+				govalidator.MinSizeError{
 					MinSize:    5,
 					ActualSize: 4,
 				},
@@ -95,7 +95,7 @@ func TestMinSizeValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.MinSizeError{
+				govalidator.MinSizeError{
 					MinSize:    5,
 					ActualSize: 4,
 				},
@@ -110,7 +110,7 @@ func TestMinSizeValidator(t *testing.T) {
 			input:         "",
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAListError{},
+				govalidator.NotAListError{},
 			},
 		},
 		{
@@ -122,7 +122,7 @@ func TestMinSizeValidator(t *testing.T) {
 			input:         "",
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAListError{},
+				govalidator.NotAListError{},
 			},
 		},
 		{
@@ -134,7 +134,7 @@ func TestMinSizeValidator(t *testing.T) {
 			input:         (*[]interface{})(nil),
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAListError{},
+				govalidator.NotAListError{},
 			},
 		},
 		{
@@ -146,7 +146,7 @@ func TestMinSizeValidator(t *testing.T) {
 			input:         (*[]interface{})(nil),
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAListError{},
+				govalidator.NotAListError{},
 			},
 		},
 		{
@@ -180,7 +180,7 @@ func TestMinSizeValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.MinSizeError{
+				govalidator.MinSizeError{
 					MinSize:    5,
 					ActualSize: 4,
 				},
@@ -197,7 +197,7 @@ func TestMinSizeValidator(t *testing.T) {
 			},
 			wantTwigBlock: false,
 			wantErrs: []error{
-				go_validator.MinSizeError{
+				govalidator.MinSizeError{
 					MinSize:    5,
 					ActualSize: 4,
 				},
@@ -206,7 +206,7 @@ func TestMinSizeValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := go_validator.MinSizeValidator(tt.args.minSize, tt.args.blocks)
+			v := govalidator.MinSizeValidator(tt.args.minSize, tt.args.blocks)
 
 			gotTwigBlock, gotErrs := v(nil, tt.input)
 			assert.Equal(t, tt.wantTwigBlock, gotTwigBlock)

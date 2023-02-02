@@ -1,7 +1,7 @@
-package go_validator_test
+package govalidator_test
 
 import (
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -46,7 +46,7 @@ func TestMaxLengthValidator(t *testing.T) {
 			},
 			blocksTwig: false,
 			expectedErrs: []error{
-				go_validator.StringTooLongError{
+				govalidator.StringTooLongError{
 					MaxLength:    5,
 					ActualLength: 6,
 				},
@@ -67,7 +67,7 @@ func TestMaxLengthValidator(t *testing.T) {
 			},
 			blocksTwig: false,
 			expectedErrs: []error{
-				go_validator.StringTooLongError{
+				govalidator.StringTooLongError{
 					MaxLength:    5,
 					ActualLength: 6,
 				},
@@ -81,7 +81,7 @@ func TestMaxLengthValidator(t *testing.T) {
 			},
 			blocksTwig: true,
 			expectedErrs: []error{
-				go_validator.NotAStringError{},
+				govalidator.NotAStringError{},
 			},
 		},
 		{
@@ -99,13 +99,13 @@ func TestMaxLengthValidator(t *testing.T) {
 			},
 			blocksTwig: true,
 			expectedErrs: []error{
-				go_validator.NotAStringError{},
+				govalidator.NotAStringError{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := go_validator.MaxLengthValidator(tt.args.maxLength)
+			v := govalidator.MaxLengthValidator(tt.args.maxLength)
 			twigBreak, errs := v(nil, tt.args.input)
 			assert.Equal(t, tt.blocksTwig, twigBreak)
 			assert.Equal(t, tt.expectedErrs, errs)
@@ -116,12 +116,12 @@ func TestMaxLengthValidator(t *testing.T) {
 func TestStringTooLongError_Error(t *testing.T) {
 	tests := []struct {
 		name string
-		err  go_validator.StringTooLongError
+		err  govalidator.StringTooLongError
 		want string
 	}{
 		{
 			name: "happy path",
-			err: go_validator.StringTooLongError{
+			err: govalidator.StringTooLongError{
 				MaxLength:    5,
 				ActualLength: 6,
 			},

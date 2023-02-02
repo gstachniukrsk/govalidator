@@ -1,9 +1,9 @@
-package go_validator_test
+package govalidator_test
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -11,9 +11,9 @@ import (
 
 func TestNewBasicValidator(t *testing.T) {
 	t.Run("constructor", func(t *testing.T) {
-		v := go_validator.NewBasicValidator(
-			go_validator.PathPresenter("."),
-			go_validator.SimpleErrorPresenter(),
+		v := govalidator.NewBasicValidator(
+			govalidator.PathPresenter("."),
+			govalidator.SimpleErrorPresenter(),
 		)
 
 		assert.NotNil(t, v)
@@ -21,21 +21,21 @@ func TestNewBasicValidator(t *testing.T) {
 }
 
 func TestBasicValidator_Validate(t *testing.T) {
-	simpleUserValidator := go_validator.Definition{
-		Validator: []go_validator.ContextValidator{
-			go_validator.IsMapValidator,
+	simpleUserValidator := govalidator.Definition{
+		Validator: []govalidator.ContextValidator{
+			govalidator.IsMapValidator,
 		},
-		Fields: &map[string]go_validator.Definition{
+		Fields: &map[string]govalidator.Definition{
 			"name": {
-				Validator: []go_validator.ContextValidator{
-					go_validator.NonNullableValidator,
-					go_validator.StringValidator,
+				Validator: []govalidator.ContextValidator{
+					govalidator.NonNullableValidator,
+					govalidator.StringValidator,
 				},
 			},
 			"age": {
-				Validator: []go_validator.ContextValidator{
-					go_validator.NonNullableValidator,
-					go_validator.IntValidator,
+				Validator: []govalidator.ContextValidator{
+					govalidator.NonNullableValidator,
+					govalidator.IntValidator,
 				},
 			},
 		},
@@ -44,7 +44,7 @@ func TestBasicValidator_Validate(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		json string
-		def  go_validator.Definition
+		def  govalidator.Definition
 	}
 	tests := []struct {
 		name     string
@@ -57,10 +57,10 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `"john"`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{
-						go_validator.NonNullableValidator,
-						go_validator.StringValidator,
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{
+						govalidator.NonNullableValidator,
+						govalidator.StringValidator,
 					},
 				},
 			},
@@ -142,9 +142,9 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `[]`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{
-						go_validator.IsListValidator,
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{
+						govalidator.IsListValidator,
 					},
 					ListOf: &simpleUserValidator,
 				},
@@ -157,9 +157,9 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `[{"name": "john", "age": 42},{"name": "jane", "age": 38}]`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{
-						go_validator.IsListValidator,
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{
+						govalidator.IsListValidator,
 					},
 					ListOf: &simpleUserValidator,
 				},
@@ -172,8 +172,8 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `[{"name": "john", "age": 42},{"name": "jane", "age": "38"}]`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{},
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{},
 					ListOf:    &simpleUserValidator,
 				},
 			},
@@ -187,10 +187,10 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `{"name": "john", "age": 42, "extra": "field"}`,
-				def: go_validator.Definition{
-					Validator:           []go_validator.ContextValidator{},
+				def: govalidator.Definition{
+					Validator:           []govalidator.ContextValidator{},
 					AcceptExtraProperty: true,
-					Fields:              &map[string]go_validator.Definition{},
+					Fields:              &map[string]govalidator.Definition{},
 				},
 			},
 			valid:    true,
@@ -201,9 +201,9 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `{"name": "john"}`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{},
-					Fields: &map[string]go_validator.Definition{
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{},
+					Fields: &map[string]govalidator.Definition{
 						"name": {},
 						"age":  {},
 					},
@@ -218,13 +218,13 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `{"name": "john"}`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{},
-					Fields: &map[string]go_validator.Definition{
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{},
+					Fields: &map[string]govalidator.Definition{
 						"name": {},
 						"age": {
-							Validator: []go_validator.ContextValidator{
-								go_validator.NonNullableValidator,
+							Validator: []govalidator.ContextValidator{
+								govalidator.NonNullableValidator,
 							},
 						},
 					},
@@ -241,13 +241,13 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `{}`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{},
-					Fields: &map[string]go_validator.Definition{
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{},
+					Fields: &map[string]govalidator.Definition{
 						"name": {},
 						"age": {
-							Validator: []go_validator.ContextValidator{
-								go_validator.IntValidator,
+							Validator: []govalidator.ContextValidator{
+								govalidator.IntValidator,
 							},
 						},
 					},
@@ -262,9 +262,9 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `null`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{},
-					Fields:    &map[string]go_validator.Definition{},
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{},
+					Fields:    &map[string]govalidator.Definition{},
 				},
 			},
 			valid: false,
@@ -277,8 +277,8 @@ func TestBasicValidator_Validate(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				json: `null`,
-				def: go_validator.Definition{
-					Validator: []go_validator.ContextValidator{},
+				def: govalidator.Definition{
+					Validator: []govalidator.ContextValidator{},
 					ListOf:    &simpleUserValidator,
 				},
 			},
@@ -290,9 +290,9 @@ func TestBasicValidator_Validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := go_validator.NewBasicValidator(
-				go_validator.PathPresenter("."),
-				go_validator.SimpleErrorPresenter(),
+			v := govalidator.NewBasicValidator(
+				govalidator.PathPresenter("."),
+				govalidator.SimpleErrorPresenter(),
 			)
 
 			var target any

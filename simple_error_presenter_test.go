@@ -1,8 +1,8 @@
-package go_validator_test
+package govalidator_test
 
 import (
 	"context"
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -23,14 +23,14 @@ func TestSimpleErrorPresenter(t *testing.T) {
 			args: args{
 				ctx:  context.Background(),
 				path: []string{},
-				err:  go_validator.RequiredError{},
+				err:  govalidator.RequiredError{},
 			},
 			want: "required",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := go_validator.SimpleErrorPresenter()
+			p := govalidator.SimpleErrorPresenter()
 
 			out := p(tt.args.ctx, tt.args.path, tt.args.err)
 			assert.Equal(t, tt.want, out)

@@ -1,7 +1,7 @@
-package go_validator_test
+package govalidator_test
 
 import (
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -67,7 +67,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         0.5,
 			wantTwigBlock: false,
 			wantErrs: []error{
-				go_validator.FloatIsLesserThanError{
+				govalidator.FloatIsLesserThanError{
 					MinFloat: 1.0,
 				},
 			},
@@ -80,7 +80,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         -0.5,
 			wantTwigBlock: false,
 			wantErrs: []error{
-				go_validator.FloatIsLesserThanError{
+				govalidator.FloatIsLesserThanError{
 					MinFloat: 0.0,
 				},
 			},
@@ -93,7 +93,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         -1.5,
 			wantTwigBlock: false,
 			wantErrs: []error{
-				go_validator.FloatIsLesserThanError{
+				govalidator.FloatIsLesserThanError{
 					MinFloat: -1.0,
 				},
 			},
@@ -106,7 +106,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         "not float",
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAFloatError{},
+				govalidator.NotAFloatError{},
 			},
 		},
 		{
@@ -119,7 +119,7 @@ func TestMinFloatValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := go_validator.MinFloatValidator(tt.args.minFloat)
+			v := govalidator.MinFloatValidator(tt.args.minFloat)
 			gotTwigBlock, gotErrs := v(nil, tt.input)
 
 			assert.Equal(t, tt.wantTwigBlock, gotTwigBlock)
@@ -140,7 +140,7 @@ func Test_FloatIsLesserThanError(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := go_validator.FloatIsLesserThanError{
+			e := govalidator.FloatIsLesserThanError{
 				MinFloat: 1.0,
 			}
 			assert.Equal(t, tt.want, e.Error())

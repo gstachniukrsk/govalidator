@@ -1,9 +1,9 @@
-package go_validator
+package govalidator
 
 import (
-"context"
-"github.com/stretchr/testify/assert"
-"testing"
+	"context"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestNullableValidator(t *testing.T) {

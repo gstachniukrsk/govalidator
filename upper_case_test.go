@@ -1,7 +1,7 @@
-package go_validator_test
+package govalidator_test
 
 import (
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -27,7 +27,7 @@ func TestUpperCaseValidator(t *testing.T) {
 			args: args{
 				value: "john",
 			},
-			wantErrs: []error{go_validator.NotUpperCasedError{
+			wantErrs: []error{govalidator.NotUpperCasedError{
 				Input: "john",
 			}},
 		},
@@ -36,7 +36,7 @@ func TestUpperCaseValidator(t *testing.T) {
 			args: args{
 				value: 1,
 			},
-			wantErrs:      []error{go_validator.NotAStringError{}},
+			wantErrs:      []error{govalidator.NotAStringError{}},
 			wantTwigBlock: true,
 		},
 		{
@@ -44,14 +44,14 @@ func TestUpperCaseValidator(t *testing.T) {
 			args: args{
 				value: "JoHn",
 			},
-			wantErrs: []error{go_validator.NotUpperCasedError{
+			wantErrs: []error{govalidator.NotUpperCasedError{
 				Input: "JoHn",
 			}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTwigBlock, gotErrs := go_validator.UpperCaseValidator(nil, tt.args.value)
+			gotTwigBlock, gotErrs := govalidator.UpperCaseValidator(nil, tt.args.value)
 			assert.Equalf(t, tt.wantTwigBlock, gotTwigBlock, "UpperCaseValidator(%v, %v)", nil, tt.args.value)
 			assert.Equalf(t, tt.wantErrs, gotErrs, "UpperCaseValidator(%v, %v)", nil, tt.args.value)
 		})
@@ -60,7 +60,7 @@ func TestUpperCaseValidator(t *testing.T) {
 
 func TestNotUpperCasedError_Error(t *testing.T) {
 	t.Run("error message", func(t *testing.T) {
-		err := go_validator.NotUpperCasedError{
+		err := govalidator.NotUpperCasedError{
 			Input: "john",
 		}
 		assert.Equal(t, "\"john\" is not upper cased", err.Error())

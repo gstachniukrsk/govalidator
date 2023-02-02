@@ -1,9 +1,10 @@
-package go_validator
+package govalidator
 
 import (
-"context"
-"fmt"
+	"context"
+	"fmt"
 )
+
 type validator struct {
 	currentTree     []string
 	errorCollectors []Collector

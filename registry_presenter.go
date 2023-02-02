@@ -1,9 +1,10 @@
-package go_validator
+package govalidator
 
 import (
-"context"
-"reflect"
+	"context"
+	"reflect"
 )
+
 type registryPresenter struct {
 	registry map[string]PresenterFunc
 	fallback PresenterFunc

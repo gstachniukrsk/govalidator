@@ -1,8 +1,8 @@
-package go_validator_test
+package govalidator_test
 
 import (
 	"context"
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -59,7 +59,7 @@ func TestOneOfValidator(t *testing.T) {
 			},
 			input: "jim",
 			expectedErrs: []error{
-				go_validator.InvalidOptionError{
+				govalidator.InvalidOptionError{
 					Options: []any{
 						"john",
 						"doe",
@@ -102,7 +102,7 @@ func TestOneOfValidator(t *testing.T) {
 				"foo": "qux",
 			},
 			expectedErrs: []error{
-				go_validator.InvalidOptionError{
+				govalidator.InvalidOptionError{
 					Options: []any{
 						map[string]interface{}{
 							"foo": "bar",
@@ -120,7 +120,7 @@ func TestOneOfValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := go_validator.OneOfValidator(tt.args.options...)
+			v := govalidator.OneOfValidator(tt.args.options...)
 
 			twigBlock, errs := v(context.Background(), tt.input)
 
@@ -182,7 +182,7 @@ func TestInvalidOptionError_Error(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := go_validator.InvalidOptionError{
+			e := govalidator.InvalidOptionError{
 				Options: tt.fields.Options,
 				Actual:  tt.fields.Actual,
 			}

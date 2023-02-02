@@ -1,8 +1,8 @@
-package go_validator_test
+package govalidator_test
 
 import (
 	"context"
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -37,7 +37,7 @@ func TestStringValidator(t *testing.T) {
 			args:          args{},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAStringError{},
+				govalidator.NotAStringError{},
 			},
 		},
 		{
@@ -48,7 +48,7 @@ func TestStringValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAStringError{},
+				govalidator.NotAStringError{},
 			},
 		},
 		{
@@ -59,13 +59,13 @@ func TestStringValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotAStringError{},
+				govalidator.NotAStringError{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTwigBlock, gotErrs := go_validator.StringValidator(tt.args.ctx, tt.args.value)
+			gotTwigBlock, gotErrs := govalidator.StringValidator(tt.args.ctx, tt.args.value)
 			assert.Equalf(t, tt.wantTwigBlock, gotTwigBlock, "StringValidator(%v, %v)", tt.args.ctx, tt.args.value)
 			assert.Equalf(t, tt.wantErrs, gotErrs, "StringValidator(%v, %v)", tt.args.ctx, tt.args.value)
 		})

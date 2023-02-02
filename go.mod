@@ -1,4 +1,4 @@
-module github.com/gstachniukrsk/go_validator
+module github.com/gstachniukrsk/govalidator
 
 go 1.19
 

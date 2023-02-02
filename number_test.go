@@ -1,8 +1,8 @@
-package go_validator_test
+package govalidator_test
 
 import (
 	"context"
-	"github.com/gstachniukrsk/go_validator"
+	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -41,7 +41,7 @@ func TestNumberValidator(t *testing.T) {
 			input:         "1",
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotANumberError{},
+				govalidator.NotANumberError{},
 			},
 		},
 		{
@@ -52,13 +52,13 @@ func TestNumberValidator(t *testing.T) {
 			input:         true,
 			wantTwigBlock: true,
 			wantErrs: []error{
-				go_validator.NotANumberError{},
+				govalidator.NotANumberError{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := go_validator.NumberValidator
+			v := govalidator.NumberValidator
 			twigBlock, errs := v(tt.args.ctx, tt.input)
 			assert.Equal(t, tt.wantTwigBlock, twigBlock)
 			assert.Equal(t, tt.wantErrs, errs)

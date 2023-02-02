@@ -1,8 +1,8 @@
-package go_validator
+package govalidator
 
 import (
-"github.com/stretchr/testify/assert"
-"testing"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestIsBooleanValidator(t *testing.T) {
