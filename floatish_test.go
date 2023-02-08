@@ -42,4 +42,10 @@ func TestFloatishValidator(t *testing.T) {
 		assert.False(t, twig)
 		assert.Emptyf(t, errs, "expected no errors, got %v", errs)
 	})
+
+	t.Run("very high precision", func(t *testing.T) {
+		twig, errs := govalidator.FloatishValidator(4)(nil, 1.123456789)
+		assert.False(t, twig)
+		assert.Equal(t, []error{govalidator.FloatPrecisionError{ExpectedPrecision: 4, ActualPrecision: 9}}, errs)
+	})
 }

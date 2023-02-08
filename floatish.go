@@ -2,7 +2,7 @@ package govalidator
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -25,9 +25,13 @@ func FloatishValidator(maxPrecision int) ContextValidator {
 			return
 		}
 		// cast to string
-		s := fmt.Sprintf("%f", n)
+		s := strconv.FormatFloat(n, 'f', -1, 64)
+
 		// get the decimal part
-		decimal := strings.Split(s, ".")[1]
+		decimal := ""
+		if strings.Contains(s, ".") {
+			decimal = strings.Split(s, ".")[1]
+		}
 
 		// remove zeroes from the end
 		for i := len(decimal) - 1; i >= 0; i-- {
