@@ -39,6 +39,14 @@ func TestPathPresenter(t *testing.T) {
 			input: []string{"one", "two"},
 			want:  "one.two",
 		},
+		{
+			name: "list",
+			args: args{
+				glue: ".",
+			},
+			input: []string{"one", "two", "[0]", "three"},
+			want:  "one.two[0].three",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

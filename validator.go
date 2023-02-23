@@ -3,6 +3,7 @@ package govalidator
 import (
 	"context"
 	"fmt"
+	"sort"
 )
 
 type validator struct {
@@ -113,37 +114,28 @@ func (v *validator) handleObject(ctx context.Context, value any, def Definition)
 		return
 	}
 
-	for field, fDef := range *def.Fields {
+	sortedFieldsKeys := v.getSortedFieldNames(def)
+
+	for _, field := range sortedFieldsKeys {
+		fDef := (*def.Fields)[field]
 		val, ok := currentMap[field]
 
 		if !ok {
-			if !def.AcceptNotDefinedProperty {
-				v.addError(ctx, FieldNotDefinedError{
-					Field: field,
-				})
-				continue
-			}
-
-			// check if field definition contains non-null validator,
-			//	we need to fail that case
-			for _, fCtxV := range fDef.Validator {
-				if !fCtxV.AcceptsNull() {
-					v.addError(ctx, FieldNotDefinedError{
-						Field: field,
-					})
-					continue
-				}
-			}
-
+			v.handleNotDefinedProperty(ctx, def, field, fDef)
 			continue
 		}
 
 		v.Validate(ctx, field, val, fDef)
 	}
 
+	v.handleExtraProperties(ctx, currentMap, def)
+}
+
+func (v *validator) handleExtraProperties(ctx context.Context, currentMap map[string]interface{}, def Definition) {
 	if def.AcceptExtraProperty {
 		return
 	}
+
 	// get all keys from map
 	keys := make([]string, 0, len(currentMap))
 	for key := range currentMap {
@@ -160,6 +152,35 @@ func (v *validator) handleObject(ctx context.Context, value any, def Definition)
 		v.addError(ctx, UnexpectedFieldError{
 			Field: k,
 		})
+	}
+}
+
+func (v *validator) getSortedFieldNames(def Definition) []string {
+	sortedFieldsKeys := make([]string, 0, len(*def.Fields))
+	for k := range *def.Fields {
+		sortedFieldsKeys = append(sortedFieldsKeys, k)
+	}
+	sort.Strings(sortedFieldsKeys)
+	return sortedFieldsKeys
+}
+
+func (v *validator) handleNotDefinedProperty(ctx context.Context, def Definition, field string, fDef Definition) {
+	if !def.AcceptNotDefinedProperty {
+		v.addError(ctx, FieldNotDefinedError{
+			Field: field,
+		})
+		return
+	}
+
+	// check if field definition contains non-null validator,
+	//	we need to fail that case
+	for _, fCtxV := range fDef.Validator {
+		if !fCtxV.AcceptsNull() {
+			v.addError(ctx, FieldNotDefinedError{
+				Field: field,
+			})
+			return
+		}
 	}
 }
 

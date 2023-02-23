@@ -179,7 +179,7 @@ func TestBasicValidator_Validate(t *testing.T) {
 			},
 			valid: false,
 			wantErrs: map[string][]string{
-				"$.[1].age": {"not an integer"},
+				"$[1].age": {"not an integer"},
 			},
 		},
 		{
