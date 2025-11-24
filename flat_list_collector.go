@@ -2,16 +2,25 @@ package govalidator
 
 import "context"
 
+// FlatListCollector is an interface for collecting errors as a flat list.
+type FlatListCollector interface {
+	Collect(ctx context.Context, path []string, err error)
+	GetErrors() []string
+}
+
 // flatListCollector collects errors as a flat list of strings rather than a map.
 type flatListCollector struct {
 	errors   []string
 	combiner PresenterFunc
 }
 
-// FlatListCollector is an interface for collecting errors as a flat list.
-type FlatListCollector interface {
-	Collect(ctx context.Context, path []string, err error)
-	GetErrors() []string
+// FlatListValidator wraps the validation to return a flat list of error strings.
+type FlatListValidator interface {
+	Validate(ctx context.Context, value any, def Definition) (bool, []string)
+}
+
+type flatListValidator struct {
+	combiner PresenterFunc
 }
 
 // NewFlatListCollector creates a new collector that returns errors as a flat string slice.
@@ -37,15 +46,6 @@ func (c *flatListCollector) Collect(ctx context.Context, path []string, err erro
 // GetErrors returns the collected errors as a flat slice of strings.
 func (c *flatListCollector) GetErrors() []string {
 	return c.errors
-}
-
-// FlatListValidator wraps the validation to return a flat list of error strings.
-type FlatListValidator interface {
-	Validate(ctx context.Context, value any, def Definition) (bool, []string)
-}
-
-type flatListValidator struct {
-	combiner PresenterFunc
 }
 
 // NewFlatListValidator creates a validator that returns errors as a flat list of strings.

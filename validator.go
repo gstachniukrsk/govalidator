@@ -2,6 +2,7 @@ package govalidator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 )
@@ -69,7 +70,7 @@ func (v *validator) Copy() Validator {
 
 func (v *validator) WithCollector(collector Collector) Validator {
 	v2 := v.Copy().(*validator)
-	v2.errorCollectors = append(v.errorCollectors, collector)
+	v2.errorCollectors = append(v2.errorCollectors, collector)
 	return v2
 }
 
@@ -179,7 +180,16 @@ func (v *validator) handleNotDefinedProperty(ctx context.Context, def Definition
 	// check if field definition contains non-null validator,
 	//	we need to fail that case
 	for _, fCtxV := range fDef.Validator {
-		if !fCtxV.AcceptsNull() {
+		_, errs := fCtxV(ctx, nil)
+		hasRequiredError := false
+		for _, err := range errs {
+			var requiredError RequiredError
+			if errors.As(err, &requiredError) {
+				hasRequiredError = true
+				break
+			}
+		}
+		if hasRequiredError {
 			v.addError(ctx, FieldNotDefinedError{
 				Field: field,
 			})

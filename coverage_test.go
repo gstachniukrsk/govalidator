@@ -76,7 +76,7 @@ func TestFlatListValidator(t *testing.T) {
 
 		validator := govalidator.NewFlatListValidator(govalidator.CombinedPresenter(".", ": "))
 		data := map[string]any{
-			"name": 123,     // wrong type
+			"name": 123,      // wrong type
 			"age":  "thirty", // wrong type
 		}
 
@@ -575,13 +575,13 @@ func TestFloatValidator_AllPrecisionCases(t *testing.T) {
 			value float64
 			valid bool
 		}{
-			{1.100, true},    // exactly 1 significant decimal (after removing trailing zeros)
-			{1.120, true},    // exactly 2 significant decimals
-			{1.123, true},    // exactly 3 significant decimals
-			{1.1234, false},  // 4 significant decimals - too many
-			{10.00, true},    // all trailing zeros
-			{10.01, true},    // 1 significant decimal (after removing trailing zero)
-			{10.010, true},   // 2 significant decimals (after removing trailing zero)
+			{1.100, true},   // exactly 1 significant decimal (after removing trailing zeros)
+			{1.120, true},   // exactly 2 significant decimals
+			{1.123, true},   // exactly 3 significant decimals
+			{1.1234, false}, // 4 significant decimals - too many
+			{10.00, true},   // all trailing zeros
+			{10.01, true},   // 1 significant decimal (after removing trailing zero)
+			{10.010, true},  // 2 significant decimals (after removing trailing zero)
 		}
 
 		for _, tc := range testCases {

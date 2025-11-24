@@ -4,16 +4,18 @@ package govalidator
 func (d Definition) ExtendedWith(def Definition) Definition {
 	out := Definition{}
 
-	out.Validator = append(d.Validator, def.Validator...)
+	out.Validator = append(out.Validator, d.Validator...)
+	out.Validator = append(out.Validator, def.Validator...)
 	out.AcceptNotDefinedProperty = d.AcceptNotDefinedProperty || def.AcceptNotDefinedProperty
 	out.AcceptExtraProperty = d.AcceptExtraProperty || def.AcceptExtraProperty
 
-	if d.ListOf != nil && def.ListOf != nil {
-		extendedListOf := (*d.ListOf).ExtendedWith(*def.ListOf)
+	switch {
+	case d.ListOf != nil && def.ListOf != nil:
+		extendedListOf := d.ListOf.ExtendedWith(*def.ListOf)
 		out.ListOf = &extendedListOf
-	} else if def.ListOf != nil {
+	case def.ListOf != nil:
 		out.ListOf = def.ListOf
-	} else {
+	default:
 		out.ListOf = d.ListOf
 	}
 

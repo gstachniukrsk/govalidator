@@ -9,8 +9,7 @@ import (
 
 func TestNumberValidator(t *testing.T) {
 	type args struct {
-		ctx   context.Context
-		value any
+		ctx context.Context
 	}
 	tests := []struct {
 		name          string

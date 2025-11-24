@@ -15,7 +15,7 @@ func (v ContextValidator) AcceptsNull() bool {
 	_, errs := v.Validate(context.Background(), nil)
 
 	for _, err := range errs {
-		if _, ok := err.(RequiredError); ok {
+		if _, ok := err.(RequiredError); ok { //nolint:errorlint // RequiredError is not wrapped in this codebase
 			return false
 		}
 	}

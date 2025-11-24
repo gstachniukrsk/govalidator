@@ -19,16 +19,14 @@ func (e StringTooLongError) Error() string {
 // MaxLengthValidator is a validator that checks if the value is a string and is less than or equal to the max.
 func MaxLengthValidator(maxLength int) ContextValidator {
 	return func(_ context.Context, value any) (twigBlock bool, errs []error) {
-		switch value.(type) {
+		switch v := value.(type) {
 		case string:
-			str := value.(string)
-			// count utf runes
-			return handleUtf8(str, maxLength)
+			return handleUtf8(v, maxLength)
 		case *string:
-			if value.(*string) == nil {
+			if v == nil {
 				return true, []error{NotAStringError{}}
 			}
-			return handleUtf8(*value.(*string), maxLength)
+			return handleUtf8(*v, maxLength)
 		}
 
 		return true, []error{NotAStringError{}}

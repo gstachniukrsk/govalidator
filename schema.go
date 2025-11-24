@@ -5,13 +5,6 @@ import "context"
 // ExtraFieldsMode defines how additional properties are handled in objects.
 type ExtraFieldsMode int
 
-const (
-	// ExtraForbid causes validation to fail if extra fields are present.
-	ExtraForbid ExtraFieldsMode = iota
-	// ExtraIgnore allows extra fields without validation or errors.
-	ExtraIgnore
-)
-
 // Schema represents a validation schema with a simpler, more intuitive structure.
 // Fields are public for easy construction, but fluent methods are also provided.
 //
@@ -44,6 +37,20 @@ type Schema struct {
 	// Use Required() and Optional() methods to set this
 	required bool
 }
+
+// Field represents a field definition with its name and schema.
+// This is used with the builder pattern for defining object fields.
+type Field struct {
+	name   string
+	schema *Schema
+}
+
+const (
+	// ExtraForbid causes validation to fail if extra fields are present.
+	ExtraForbid ExtraFieldsMode = iota
+	// ExtraIgnore allows extra fields without validation or errors.
+	ExtraIgnore
+)
 
 // NewSchema creates a Schema with the given validators.
 // By default, schemas are optional (nullable) and allow extra fields.
@@ -89,13 +96,6 @@ func Array(itemSchema *Schema) *Schema {
 		Validators: []ContextValidator{IsListValidator},
 		Items:      itemSchema,
 	}
-}
-
-// Field represents a field definition with its name and schema.
-// This is used with the builder pattern for defining object fields.
-type Field struct {
-	name   string
-	schema *Schema
 }
 
 // NewField creates a new field definition with the given name.

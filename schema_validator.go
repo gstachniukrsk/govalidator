@@ -6,15 +6,6 @@ import (
 	"sort"
 )
 
-// SchemaValidator validates values against Schema definitions.
-// This is the modern validator that works directly with Schema,
-// providing better extensibility and cleaner architecture than the legacy validator.
-type SchemaValidator struct {
-	pathPresenter  PresenterFunc
-	errorPresenter PresenterFunc
-	errorCollector ErrorCollector
-}
-
 // ErrorCollector collects validation errors during the validation process.
 // This interface allows for different error collection strategies.
 type ErrorCollector interface {
@@ -28,6 +19,14 @@ type ErrorCollector interface {
 	HasErrors() bool
 }
 
+// SchemaValidator validates values against Schema definitions.
+// This is the modern validator that works directly with Schema,
+// providing better extensibility and cleaner architecture than the legacy validator.
+type SchemaValidator struct {
+	pathPresenter  PresenterFunc
+	errorPresenter PresenterFunc
+}
+
 // ValidationContext holds state during validation traversal.
 // This allows validators to access parent context and pass data down the validation tree.
 type ValidationContext struct {
@@ -36,6 +35,21 @@ type ValidationContext struct {
 	errorCollector ErrorCollector
 	pathPresenter  PresenterFunc
 	errorPresenter PresenterFunc
+}
+
+// MapErrorCollector collects errors into a map[string][]string structure.
+type MapErrorCollector struct {
+	ctx            context.Context
+	errors         map[string][]string
+	pathPresenter  PresenterFunc
+	errorPresenter PresenterFunc
+}
+
+// FlatErrorCollector collects errors into a flat string slice.
+type FlatErrorCollector struct {
+	ctx      context.Context
+	errors   []string
+	combiner PresenterFunc
 }
 
 // NewSchemaValidator creates a new Schema-based validator with the given presenters.
@@ -253,14 +267,6 @@ func (sv *SchemaValidator) pushPath(parent *ValidationContext, segment string) *
 	}
 }
 
-// MapErrorCollector collects errors into a map[string][]string structure.
-type MapErrorCollector struct {
-	ctx            context.Context
-	errors         map[string][]string
-	pathPresenter  PresenterFunc
-	errorPresenter PresenterFunc
-}
-
 // NewMapErrorCollector creates a new map-based error collector.
 func NewMapErrorCollector(ctx context.Context, pathPresenter PresenterFunc, errorPresenter PresenterFunc) *MapErrorCollector {
 	return &MapErrorCollector{
@@ -286,13 +292,6 @@ func (c *MapErrorCollector) GetErrors() map[string][]string {
 // HasErrors returns true if any errors were collected.
 func (c *MapErrorCollector) HasErrors() bool {
 	return len(c.errors) > 0
-}
-
-// FlatErrorCollector collects errors into a flat string slice.
-type FlatErrorCollector struct {
-	ctx      context.Context
-	errors   []string
-	combiner PresenterFunc
 }
 
 // NewFlatErrorCollector creates a new flat error collector.

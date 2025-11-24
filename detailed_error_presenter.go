@@ -12,9 +12,11 @@ import (
 //   - "value must be at least 5 characters (got 2)"
 //   - "value must be between 0.00 and 100.00"
 //   - "field 'email' is required"
+//
+//nolint:cyclop // High complexity is acceptable for comprehensive error formatting
 func DetailedErrorPresenter() PresenterFunc {
 	return func(_ context.Context, _ []string, err error) string {
-		switch e := err.(type) {
+		switch e := err.(type) { //nolint:errorlint // Errors are not wrapped in this codebase
 		case RequiredError:
 			return "this field is required"
 
@@ -84,7 +86,7 @@ func DetailedErrorPresenter() PresenterFunc {
 //   - "FloatPrecisionError: expected precision 2, actual precision 4"
 func VerboseErrorPresenter() PresenterFunc {
 	return func(_ context.Context, _ []string, err error) string {
-		switch e := err.(type) {
+		switch e := err.(type) { //nolint:errorlint // Errors are not wrapped in this codebase
 		case MinSizeError:
 			return fmt.Sprintf("MinSizeError: expected minimum size %d, actual size %d", e.MinSize, e.ActualSize)
 

@@ -47,7 +47,7 @@ func JSONDetailedPresenter(pathGlue string) PresenterFunc {
 		}
 
 		// Extract additional fields from structured errors
-		switch e := err.(type) {
+		switch e := err.(type) { //nolint:errorlint // Errors are not wrapped in this codebase
 		case MinSizeError:
 			errorData["minSize"] = e.MinSize
 			errorData["actualSize"] = e.ActualSize
@@ -82,8 +82,10 @@ func JSONDetailedPresenter(pathGlue string) PresenterFunc {
 }
 
 // getErrorType returns the type name of the error
+//
+//nolint:cyclop // High complexity is acceptable for comprehensive error type detection
 func getErrorType(err error) string {
-	switch err.(type) {
+	switch err.(type) { //nolint:errorlint // Errors are not wrapped in this codebase
 	case RequiredError:
 		return "RequiredError"
 	case NotAStringError:

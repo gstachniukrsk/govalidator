@@ -8,7 +8,6 @@ import (
 
 // IsIntegerValidator is a validator that checks if the value is an integer of any type.
 func IsIntegerValidator(_ context.Context, value any) (twigBlock bool, errs []error) {
-
 	switch value.(type) {
 	case float64:
 		s := fmt.Sprintf("%f", value)

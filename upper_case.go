@@ -17,17 +17,15 @@ func (e NotUpperCasedError) Error() string {
 
 // UpperCaseValidator validates that a string value is in uppercase.
 func UpperCaseValidator(_ context.Context, value any) (twigBlock bool, errs []error) {
-	if _, ok := value.(string); !ok {
+	str, ok := value.(string)
+	if !ok {
 		return true, []error{NotAStringError{}}
 	}
 
-	switch value.(type) {
-	case string:
-		if value.(string) != strings.ToUpper(value.(string)) {
-			errs = append(errs, NotUpperCasedError{
-				Input: value.(string),
-			})
-		}
+	if str != strings.ToUpper(str) {
+		errs = append(errs, NotUpperCasedError{
+			Input: str,
+		})
 	}
 
 	return
