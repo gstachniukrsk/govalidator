@@ -66,7 +66,7 @@ func TestMaxFloatValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				FloatIsGreaterThanError{MaxFloat: 2.0},
+				FloatTooLargeError{MaxFloat: 2.0},
 			},
 		},
 		{
@@ -77,7 +77,7 @@ func TestMaxFloatValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				FloatIsGreaterThanError{MaxFloat: 0.0},
+				FloatTooLargeError{MaxFloat: 0.0},
 			},
 		},
 		{
@@ -88,7 +88,7 @@ func TestMaxFloatValidator(t *testing.T) {
 			},
 			wantTwigBlock: true,
 			wantErrs: []error{
-				FloatIsGreaterThanError{MaxFloat: -.5},
+				FloatTooLargeError{MaxFloat: -.5},
 			},
 		},
 	}

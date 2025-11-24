@@ -67,7 +67,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         0.5,
 			wantTwigBlock: false,
 			wantErrs: []error{
-				govalidator.FloatIsLesserThanError{
+				govalidator.FloatTooSmallError{
 					MinFloat: 1.0,
 				},
 			},
@@ -80,7 +80,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         -0.5,
 			wantTwigBlock: false,
 			wantErrs: []error{
-				govalidator.FloatIsLesserThanError{
+				govalidator.FloatTooSmallError{
 					MinFloat: 0.0,
 				},
 			},
@@ -93,7 +93,7 @@ func TestMinFloatValidator(t *testing.T) {
 			input:         -1.5,
 			wantTwigBlock: false,
 			wantErrs: []error{
-				govalidator.FloatIsLesserThanError{
+				govalidator.FloatTooSmallError{
 					MinFloat: -1.0,
 				},
 			},
@@ -128,7 +128,7 @@ func TestMinFloatValidator(t *testing.T) {
 	}
 }
 
-func Test_FloatIsLesserThanError(t *testing.T) {
+func Test_FloatTooSmallError(t *testing.T) {
 	tests := []struct {
 		name string
 		want string
@@ -140,7 +140,7 @@ func Test_FloatIsLesserThanError(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := govalidator.FloatIsLesserThanError{
+			e := govalidator.FloatTooSmallError{
 				MinFloat: 1.0,
 			}
 			assert.Equal(t, tt.want, e.Error())

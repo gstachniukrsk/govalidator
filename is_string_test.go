@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestStringValidator(t *testing.T) {
+func TestIsStringValidator(t *testing.T) {
 	type args struct {
 		ctx   context.Context
 		value any
@@ -65,9 +65,9 @@ func TestStringValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTwigBlock, gotErrs := govalidator.StringValidator(tt.args.ctx, tt.args.value)
-			assert.Equalf(t, tt.wantTwigBlock, gotTwigBlock, "StringValidator(%v, %v)", tt.args.ctx, tt.args.value)
-			assert.Equalf(t, tt.wantErrs, gotErrs, "StringValidator(%v, %v)", tt.args.ctx, tt.args.value)
+			gotTwigBlock, gotErrs := govalidator.IsStringValidator(tt.args.ctx, tt.args.value)
+			assert.Equalf(t, tt.wantTwigBlock, gotTwigBlock, "IsStringValidator(%v, %v)", tt.args.ctx, tt.args.value)
+			assert.Equalf(t, tt.wantErrs, gotErrs, "IsStringValidator(%v, %v)", tt.args.ctx, tt.args.value)
 		})
 	}
 }

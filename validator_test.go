@@ -29,13 +29,13 @@ func TestBasicValidator_Validate(t *testing.T) {
 			"name": {
 				Validator: []govalidator.ContextValidator{
 					govalidator.NonNullableValidator,
-					govalidator.StringValidator,
+					govalidator.IsStringValidator,
 				},
 			},
 			"age": {
 				Validator: []govalidator.ContextValidator{
 					govalidator.NonNullableValidator,
-					govalidator.IntValidator,
+					govalidator.IsIntegerValidator,
 				},
 			},
 		},
@@ -60,7 +60,7 @@ func TestBasicValidator_Validate(t *testing.T) {
 				def: govalidator.Definition{
 					Validator: []govalidator.ContextValidator{
 						govalidator.NonNullableValidator,
-						govalidator.StringValidator,
+						govalidator.IsStringValidator,
 					},
 				},
 			},
@@ -247,7 +247,7 @@ func TestBasicValidator_Validate(t *testing.T) {
 						"name": {},
 						"age": {
 							Validator: []govalidator.ContextValidator{
-								govalidator.IntValidator,
+								govalidator.IsIntegerValidator,
 							},
 						},
 					},

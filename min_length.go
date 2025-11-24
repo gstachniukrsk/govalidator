@@ -24,7 +24,7 @@ func MinLengthValidator(minLength int) ContextValidator {
 			twigBlock = true
 			return
 		}
-		if len(str) < minLength {
+		if len([]rune(str)) < minLength {
 			errs = append(errs, StringTooShortError{
 				MinLength: minLength,
 			})

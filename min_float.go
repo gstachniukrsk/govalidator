@@ -4,13 +4,13 @@ import (
 	"context"
 )
 
-// FloatIsLesserThanError is an error that is returned when the value is less than the min.
-type FloatIsLesserThanError struct {
+// FloatTooSmallError is an error that is returned when the value is less than the min.
+type FloatTooSmallError struct {
 	MinFloat float64
 }
 
 // Error is the error message.
-func (e FloatIsLesserThanError) Error() string {
+func (e FloatTooSmallError) Error() string {
 	return "value is less than min"
 }
 
@@ -29,7 +29,7 @@ func MinFloatValidator(minFloat float64) ContextValidator {
 		}
 
 		if floatValue < minFloat {
-			return false, []error{FloatIsLesserThanError{MinFloat: minFloat}}
+			return false, []error{FloatTooSmallError{MinFloat: minFloat}}
 		}
 
 		return

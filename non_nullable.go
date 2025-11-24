@@ -11,25 +11,25 @@ func NonNullableValidator(_ context.Context, value any) (twigBlock bool, errs []
 		return
 	}
 
-	switch value.(type) {
+	switch v := value.(type) {
 	case *interface{}:
-		if value.(*interface{}) == nil {
+		if v == nil {
 			return fail()
 		}
 	case *[]interface{}:
-		if value.(*[]interface{}) == nil {
+		if v == nil {
 			return fail()
 		}
 	case *map[string]interface{}:
-		if value.(*map[string]interface{}) == nil {
+		if v == nil {
 			return fail()
 		}
 	case []interface{}:
-		if value.([]interface{}) == nil {
+		if v == nil {
 			return fail()
 		}
 	case map[string]interface{}:
-		if value.(map[string]interface{}) == nil {
+		if v == nil {
 			return fail()
 		}
 	}

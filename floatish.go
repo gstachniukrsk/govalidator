@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-// FloatishValidator is a validator that checks if the value is a float64 or an int,
+// FloatValidator is a validator that checks if the value is a float64 or an int,
 //
 //	if float checks against maximal precision.
-func FloatishValidator(maxPrecision int) ContextValidator {
+func FloatValidator(maxPrecision int) ContextValidator {
 	return func(_ context.Context, value any) (twigBlock bool, errs []error) {
 		f, ok := value.(float64)
 		_, ok2 := value.(int)

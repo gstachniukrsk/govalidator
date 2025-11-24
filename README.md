@@ -67,19 +67,19 @@ func getModel() validator.Definition {
 			"name": {
 				Validator: []validator.ContextValidator{
 					validator.NonNullableValidator,
-					validator.StringValidator,
+					validator.IsStringValidator,
 				},
 			},
 			"age": {
 				Validator: []validator.ContextValidator{
 					validator.NonNullableValidator,
-					validator.IntValidator,
+					validator.IsIntegerValidator,
 				},
 			},
 			"gender": {
 				Validator: []validator.ContextValidator{
 					validator.NonNullableValidator,
-					validator.StringValidator,
+					validator.IsStringValidator,
 					validator.OneOfValidator("male", "female"),
 				},
 			},
@@ -89,7 +89,7 @@ func getModel() validator.Definition {
 					"street": {
 						Validator: []validator.ContextValidator{
 							validator.NonNullableValidator,
-							validator.StringValidator,
+							validator.IsStringValidator,
 							validator.MinLengthValidator(3),
 							validator.MaxLengthValidator(100),
 						},
@@ -97,7 +97,7 @@ func getModel() validator.Definition {
 					"city": {
 						Validator: []validator.ContextValidator{
 							validator.NonNullableValidator,
-							validator.StringValidator,
+							validator.IsStringValidator,
 							validator.MinLengthValidator(3),
 							validator.MaxLengthValidator(100),
 						},
@@ -105,7 +105,7 @@ func getModel() validator.Definition {
 					"state": {
 						Validator: []validator.ContextValidator{
 							validator.NonNullableValidator,
-							validator.StringValidator,
+							validator.IsStringValidator,
 							validator.UpperCaseValidator,
 							validator.MinLengthValidator(2),
 							validator.MaxLengthValidator(2),
@@ -114,7 +114,7 @@ func getModel() validator.Definition {
 					"zip": {
 						Validator: []validator.ContextValidator{
 							validator.NonNullableValidator,
-							validator.StringValidator,
+							validator.IsStringValidator,
 							validator.MinLengthValidator(5),
 							validator.MaxLengthValidator(5),
 						},
@@ -135,7 +135,7 @@ func getModel() validator.Definition {
 						"type": {
 							Validator: []validator.ContextValidator{
 								validator.NonNullableValidator,
-								validator.StringValidator,
+								validator.IsStringValidator,
 								validator.OneOfValidator("home", "work"),
 							},
 						},
@@ -197,13 +197,13 @@ func mustFormatErrs(errs map[string][]string) string {
 ## Predefined Validators
 | Name                 | Description                                                                                               |
 |----------------------|-----------------------------------------------------------------------------------------------------------|
-| FloatishValidator    | checks for float or int, if float also verifies if float number is provided with predefined max precision |
+| FloatValidator    | checks for float or int, if float also verifies if float number is provided with predefined max precision |
 | IsBooleanValidator   | if value is a boolean                                                                                     |
 | IsIntegerValidator   | if value is integer or float with only 0 decimals                                                         |
 | IsListValidator      | if value is of type []interface{}                                                                         |
 | IsMapValidator       | if value is of type map[string]interface{}                                                                |
 | IsStringValidator    | if value is of type string                                                                                |
-| LowerCasValidator    | if value if string and lowercase                                                                          |
+| LowerCaseValidator   | if value if string and lowercase                                                                          |
 | MaxFloatValidator    | if value is float and lower than provided expectation                                                     |
 | MaxLengthValidator   | if value is a string and shorter or eq than provided expectation                                          |
 | MinFloatValidator    | if value is a float and higher or eq to than provided expectation                                         |
@@ -268,6 +268,41 @@ func SumOfMapPropertiesValidator(propertyName string, expectedSum int) validator
 
 ```
 
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
+
+### Quick Start for Contributors
+
+```bash
+# Clone the repository
+git clone https://github.com/gstachniukrsk/govalidator.git
+cd govalidator
+
+# Set up commit message template (optional but recommended)
+git config commit.template .gitmessage
+
+# Run tests
+go test -v ./...
+
+# Run linters
+golangci-lint run
+```
+
+### Commit Message Format
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) for automatic versioning:
+
+- `feat:` - New feature (minor version bump)
+- `fix:` - Bug fix (patch version bump)
+- `feat!:` - Breaking change (major version bump)
+
+See [RELEASING.md](RELEASING.md) for complete release process.
+
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/). Releases are automated based on commit messages when merging to `master`.
+
 ## Model definition
 
 ### Map/Object
@@ -298,7 +333,7 @@ func main() {
 			"field1": {
                 Validator: []validator.ContextValidator{
                     validator.NonNullableValidator,
-                    validator.StringValidator,
+                    validator.IsStringValidator,
                 },
             },
 		},

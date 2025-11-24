@@ -1,0 +1,25 @@
+# <type>: <subject>
+# │       │
+# │       └─> Summary in present tense. Not capitalized. No period at the end.
+# │
+# └─> Type: feat|fix|docs|style|refactor|perf|test|chore
+#
+# Remember:
+# - feat:     New feature (minor version bump)
+# - fix:      Bug fix (patch version bump)
+# - perf:     Performance improvement (patch version bump)
+# - docs:     Documentation only
+# - style:    Formatting, missing semi colons, etc; no code change
+# - refactor: Refactoring production code
+# - test:     Adding tests, refactoring test; no production code change
+# - chore:    Updating build tasks, package manager configs, etc
+#
+# For breaking changes:
+# - Add ! after type: feat!: breaking change
+# - Or add footer: BREAKING CHANGE: description
+#
+# Examples:
+# feat: add JSONPresenter for API error formatting
+# fix: correct Unicode counting in MinLengthValidator
+# docs: update README with new presenters
+# feat!: rename IntValidator to IsIntegerValidator

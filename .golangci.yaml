@@ -1,0 +1,99 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - asasalint
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - decorder
+    - errname
+    - errorlint
+    - fatcontext
+    - goconst
+    - gocritic
+    - gosec
+    - govet
+    - iface
+    - ineffassign
+    - intrange
+    - loggercheck
+    - makezero
+    - musttag
+    - nestif
+    - nilerr
+    - noctx
+    - predeclared
+    - reassign
+    - revive
+    - spancheck
+    - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+  settings:
+    cyclop:
+      max-complexity: 15
+      package-average: 7.0
+    decorder:
+      dec-order:
+        - var
+        - type
+        - const
+        - func
+      disable-dec-num-check: true
+      disable-dec-order-check: false
+      disable-init-func-first-check: false
+    govet:
+      disable:
+        - fieldalignment
+        - shadow
+      enable-all: true
+    nestif:
+      min-complexity: 10
+    revive:
+      rules:
+        - name: unexported-return
+          disabled: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - gosec
+        text: 'G115:'
+      - linters:
+          - gosec
+        text: 'G303:'
+      - linters:
+          - gosec
+        text: 'G601:'
+      - linters:
+          - dupl
+          - goconst
+          - gosec
+          - musttag
+        path: _test\.go
+      - linters:
+          - cyclop
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
