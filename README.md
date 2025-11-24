@@ -1,276 +1,531 @@
-# Validator
+# GoValidator
 
-It's a go library that aims to validate json data unmarshalled to `any`.
+A modern, extensible Go library for validating JSON data with a clean, fluent API.
 
-## Usage
+## Features
+
+✨ **Modern Schema API** - Clean, fluent interface with builder pattern
+🔧 **Extensible** - Easy to create custom validators
+📝 **Type-safe** - Strong typing with Go generics support
+🎯 **Precise Error Reporting** - Exact paths to validation errors
+🚀 **High Performance** - Optimized validation engine
+🔄 **Backward Compatible** - Legacy Definition API still supported
+
+## Quick Start
+
+### Installation
+
+```bash
+go get github.com/gstachniukrsk/govalidator
+```
+
+### Basic Example
 
 ```go
-package go-validator
+package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"regexp"
-	"validator/validator"
+    "context"
+    "encoding/json"
+    "fmt"
+    "github.com/gstachniukrsk/govalidator"
 )
 
-const validInput = `{
-		"name": "John", 
-		"age": 42, 
-		"gender": "male",
-		"address": {
-			"street": "123 Main St",
-			"city": "Anytown",
-			"state": "CA",
-			"zip": "12345"
-		},
-		"phone": [
-			{
-				"type": "home",
-				"number": "123-456-7890"
-			},
-			{
-				"type": "work",
-				"number": "123-456-7890"
-			}
-		]
-	}`
+func main() {
+    // Define validation schema using the modern builder pattern
+    schema := govalidator.NewSchema().WithFields(
+        govalidator.NewField("name").
+            Required().
+            WithValidators(
+                govalidator.IsStringValidator,
+                govalidator.MinLengthValidator(3),
+            ),
+        govalidator.NewField("age").
+            Required().
+            WithValidators(govalidator.IsIntegerValidator),
+        govalidator.NewField("email").
+            Required().
+            WithValidators(govalidator.IsStringValidator),
+    ).WithExtra(govalidator.ExtraForbid)
 
-const invalidInput = `{
-		"name": "",
-		"age": "42",
-		"gender": "yes",
-		"address": {
-			"street": "1/2",
-			"city": "",
-			"state": "California",
-			"zip": "12345"
-		},
-		"phone": [
-			null,
-			{
-				"type": "office",
-				"number": "123-456-"
-			},
-			{
-				"type": "home",
-				"number": "123-456-7890"
-			}
-		]
-	}`
+    // Parse JSON data
+    jsonData := `{"name": "John", "age": 30, "email": "john@example.com"}`
+    var data any
+    json.Unmarshal([]byte(jsonData), &data)
 
-func getModel() validator.Definition {
-	return validator.Definition{
-		Validator: []validator.ContextValidator{},
-		Fields: &map[string]validator.Definition{
-			"name": {
-				Validator: []validator.ContextValidator{
-					validator.NonNullableValidator,
-					validator.IsStringValidator,
-				},
-			},
-			"age": {
-				Validator: []validator.ContextValidator{
-					validator.NonNullableValidator,
-					validator.IsIntegerValidator,
-				},
-			},
-			"gender": {
-				Validator: []validator.ContextValidator{
-					validator.NonNullableValidator,
-					validator.IsStringValidator,
-					validator.OneOfValidator("male", "female"),
-				},
-			},
-			"address": {
-				Validator: []validator.ContextValidator{},
-				Fields: &map[string]validator.Definition{
-					"street": {
-						Validator: []validator.ContextValidator{
-							validator.NonNullableValidator,
-							validator.IsStringValidator,
-							validator.MinLengthValidator(3),
-							validator.MaxLengthValidator(100),
-						},
-					},
-					"city": {
-						Validator: []validator.ContextValidator{
-							validator.NonNullableValidator,
-							validator.IsStringValidator,
-							validator.MinLengthValidator(3),
-							validator.MaxLengthValidator(100),
-						},
-					},
-					"state": {
-						Validator: []validator.ContextValidator{
-							validator.NonNullableValidator,
-							validator.IsStringValidator,
-							validator.UpperCaseValidator,
-							validator.MinLengthValidator(2),
-							validator.MaxLengthValidator(2),
-						},
-					},
-					"zip": {
-						Validator: []validator.ContextValidator{
-							validator.NonNullableValidator,
-							validator.IsStringValidator,
-							validator.MinLengthValidator(5),
-							validator.MaxLengthValidator(5),
-						},
-					},
-				},
-			},
-			"phone": {
-				Validator: []validator.ContextValidator{
-					validator.NonNullableValidator,
-					validator.IsListValidator,
-					validator.MinSizeValidator(1, false),
-				},
-				ListOf: &validator.Definition{
-					Validator: []validator.ContextValidator{
-						validator.NonNullableValidator,
-					},
-					Fields: &map[string]validator.Definition{
-						"type": {
-							Validator: []validator.ContextValidator{
-								validator.NonNullableValidator,
-								validator.IsStringValidator,
-								validator.OneOfValidator("home", "work"),
-							},
-						},
-						"number": {
-							Validator: []validator.ContextValidator{
-								validator.NonNullableValidator,
-								validator.RegexpValidator(
-									*regexp.MustCompile("^[0-9]{3}-[0-9]{3}-[0-9]{4}$"),
-								),
-							},
-						},
-					},
-				},
-			},
-		},
-	}
+    // Validate
+    valid, errs := schema.Validate(context.Background(), data)
+
+    if !valid {
+        for path, messages := range errs {
+            fmt.Printf("%s: %v\n", path, messages)
+        }
+    } else {
+        fmt.Println("Validation passed!")
+    }
+}
+```
+
+## Schema API (Recommended)
+
+The modern Schema API provides a clean, intuitive way to define validation rules.
+
+### Simple Field Validation
+
+```go
+// Required string field
+schema := govalidator.NewSchema(govalidator.IsStringValidator).Required()
+
+// Optional integer field
+schema := govalidator.NewSchema(govalidator.IsIntegerValidator).Optional()
+
+// Multiple validators
+schema := govalidator.NewSchema(
+    govalidator.IsStringValidator,
+    govalidator.MinLengthValidator(5),
+    govalidator.MaxLengthValidator(100),
+).Required()
+```
+
+### Object Validation with Builder Pattern
+
+The builder pattern provides the cleanest syntax for complex schemas:
+
+```go
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("username").
+        Required().
+        WithValidators(
+            govalidator.IsStringValidator,
+            govalidator.MinLengthValidator(3),
+            govalidator.MaxLengthValidator(20),
+        ),
+    govalidator.NewField("email").
+        Required().
+        WithValidators(govalidator.IsStringValidator),
+    govalidator.NewField("role").
+        Required().
+        WithValidators(
+            govalidator.IsStringValidator,
+            govalidator.OneOfValidator("admin", "user", "guest"),
+        ),
+    govalidator.NewField("age").
+        Optional().
+        WithValidators(govalidator.IsIntegerValidator),
+).WithExtra(govalidator.ExtraForbid)
+```
+
+### Nested Objects
+
+```go
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("user").Required().WithSchema(
+        govalidator.NewSchema().WithFields(
+            govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+            govalidator.NewField("address").Optional().WithSchema(
+                govalidator.NewSchema().WithFields(
+                    govalidator.NewField("street").Required().WithValidators(govalidator.IsStringValidator),
+                    govalidator.NewField("city").Required().WithValidators(govalidator.IsStringValidator),
+                    govalidator.NewField("zip").Optional().WithValidators(govalidator.IsStringValidator),
+                ),
+            ),
+        ),
+    ),
+)
+```
+
+### Array Validation
+
+```go
+// Simple array of strings
+schema := govalidator.Array(
+    govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+).Required()
+
+// Array of objects
+schema := govalidator.Array(
+    govalidator.NewSchema().WithFields(
+        govalidator.NewField("id").Required().WithValidators(govalidator.IsIntegerValidator),
+        govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+    ).Required(),
+).Required()
+```
+
+### Complex Example
+
+```go
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("name").
+        Required().
+        WithValidators(
+            govalidator.IsStringValidator,
+            govalidator.MinLengthValidator(3),
+        ),
+    govalidator.NewField("email").
+        Required().
+        WithValidators(govalidator.IsStringValidator),
+    govalidator.NewField("age").
+        Optional().
+        WithValidators(govalidator.IsIntegerValidator),
+    govalidator.NewField("tags").
+        Optional().
+        WithSchema(
+            govalidator.Array(
+                govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+            ),
+        ),
+    govalidator.NewField("address").
+        Optional().
+        WithSchema(
+            govalidator.Object(map[string]*govalidator.Schema{
+                "street": govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+                "city":   govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+                "zip":    govalidator.NewSchema(govalidator.IsStringValidator).Optional(),
+            }),
+        ),
+    govalidator.NewField("phones").
+        Required().
+        WithSchema(
+            govalidator.Array(
+                govalidator.NewSchema().WithFields(
+                    govalidator.NewField("type").
+                        Required().
+                        WithValidators(
+                            govalidator.IsStringValidator,
+                            govalidator.OneOfValidator("home", "work", "mobile"),
+                        ),
+                    govalidator.NewField("number").
+                        Required().
+                        WithValidators(
+                            govalidator.IsStringValidator,
+                            govalidator.RegexpValidator(*regexp.MustCompile(`^\d{3}-\d{3}-\d{4}$`)),
+                        ),
+                ).Required(),
+            ),
+        ),
+).WithExtra(govalidator.ExtraForbid)
+```
+
+### Alternative Syntax Options
+
+The Schema API supports multiple syntax styles:
+
+```go
+// 1. Builder Pattern (Recommended)
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+    govalidator.NewField("age").Optional().WithValidators(govalidator.IsIntegerValidator),
+)
+
+// 2. Object Helper with Map
+schema := govalidator.Object(map[string]*govalidator.Schema{
+    "name": govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+    "age":  govalidator.NewSchema(govalidator.IsIntegerValidator).Optional(),
+})
+
+// 3. Struct Literal
+schema := &govalidator.Schema{
+    Fields: map[string]*govalidator.Schema{
+        "name": govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+        "age":  govalidator.NewSchema(govalidator.IsIntegerValidator).Optional(),
+    },
+    Extra: govalidator.ExtraForbid,
+}
+```
+
+### Extra Fields Control
+
+```go
+// Allow extra fields (default)
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+).WithExtra(govalidator.ExtraIgnore)
+
+// Forbid extra fields
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+).WithExtra(govalidator.ExtraForbid)
+```
+
+### Validation Methods
+
+```go
+// Standard validation (returns map of errors)
+valid, errs := schema.Validate(ctx, data)
+if !valid {
+    for path, messages := range errs {
+        fmt.Printf("%s: %v\n", path, messages)
+    }
+}
+
+// With custom presenters
+valid, errs := schema.ValidateWithPresenter(
+    ctx,
+    data,
+    govalidator.PathPresenter("."),
+    govalidator.DetailedErrorPresenter(),
+)
+
+// Flat list of errors
+valid, errs := schema.ValidateFlat(
+    ctx,
+    data,
+    govalidator.CombinedPresenter(".", ": "),
+)
+// errs is []string: ["$.name: required", "$.age: not an integer"]
+```
+
+## Predefined Validators
+
+| Validator | Description |
+|-----------|-------------|
+| `IsStringValidator` | Validates that value is a string |
+| `IsIntegerValidator` | Validates that value is an integer or float with zero decimals |
+| `IsBooleanValidator` | Validates that value is a boolean |
+| `IsListValidator` | Validates that value is an array ([]any) |
+| `IsMapValidator` | Validates that value is a map (map[string]any) |
+| `FloatValidator(precision)` | Validates float with maximum precision |
+| `MinLengthValidator(min)` | Validates string has minimum length (counts runes, not bytes) |
+| `MaxLengthValidator(max)` | Validates string has maximum length (counts runes, not bytes) |
+| `MinFloatValidator(min)` | Validates number is >= minimum |
+| `MaxFloatValidator(max)` | Validates number is <= maximum |
+| `MinSizeValidator(min, blocking)` | Validates array has minimum size |
+| `MaxSizeValidator(max, blocking)` | Validates array has maximum size |
+| `OneOfValidator(values...)` | Validates value is one of the allowed values |
+| `RegexpValidator(pattern)` | Validates string matches regular expression |
+| `UpperCaseValidator` | Validates string is uppercase |
+| `LowerCaseValidator` | Validates string is lowercase |
+| `NumberValidator` | Validates value is a number (int or float) |
+
+## Custom Validators
+
+Create custom validators by implementing the `ContextValidator` function signature:
+
+```go
+func MyCustomValidator(ctx context.Context, value any) (twigBreak bool, errs []error) {
+    // Check type
+    str, ok := value.(string)
+    if !ok {
+        return true, []error{errors.New("not a string")}
+    }
+
+    // Your validation logic
+    if !strings.HasPrefix(str, "CUSTOM-") {
+        return false, []error{errors.New("must start with CUSTOM-")}
+    }
+
+    return false, nil
+}
+
+// Use in schema
+schema := govalidator.NewSchema(
+    govalidator.IsStringValidator,
+    MyCustomValidator,
+).Required()
+```
+
+### Advanced Custom Validator Example
+
+```go
+func EmailDomainValidator(allowedDomains ...string) govalidator.ContextValidator {
+    return func(ctx context.Context, value any) (bool, []error) {
+        str, ok := value.(string)
+        if !ok {
+            return true, []error{errors.New("not a string")}
+        }
+
+        parts := strings.Split(str, "@")
+        if len(parts) != 2 {
+            return false, []error{errors.New("invalid email format")}
+        }
+
+        domain := parts[1]
+        for _, allowed := range allowedDomains {
+            if domain == allowed {
+                return false, nil
+            }
+        }
+
+        return false, []error{fmt.Errorf("domain must be one of: %v", allowedDomains)}
+    }
+}
+
+// Use it
+schema := govalidator.NewField("email").
+    Required().
+    WithValidators(
+        govalidator.IsStringValidator,
+        EmailDomainValidator("company.com", "example.com"),
+    )
+```
+
+## Error Presenters
+
+Customize how errors are formatted:
+
+```go
+// Simple error messages (default)
+govalidator.SimpleErrorPresenter()
+
+// Detailed error messages with context
+govalidator.DetailedErrorPresenter()
+
+// JSON format
+govalidator.JSONPresenter(".")
+govalidator.JSONDetailedPresenter(".")
+
+// Combined path and error
+govalidator.CombinedPresenter(".", ": ")
+govalidator.CombinedBracketPresenter(".", ": ")
+
+// Custom presenter
+func MyPresenter() govalidator.PresenterFunc {
+    return func(ctx context.Context, path []string, err error) string {
+        return fmt.Sprintf("ERROR at %s: %v", strings.Join(path, " > "), err)
+    }
+}
+```
+
+## Migration from Definition API
+
+If you're using the legacy Definition API, see [MIGRATION_SCHEMA_API.md](MIGRATION_SCHEMA_API.md) for a complete migration guide.
+
+Quick comparison:
+
+```go
+// Old Definition API
+def := govalidator.Definition{
+    Validator: []govalidator.ContextValidator{
+        govalidator.NonNullableValidator,
+        govalidator.IsStringValidator,
+    },
+    Fields: &map[string]govalidator.Definition{
+        "name": {
+            Validator: []govalidator.ContextValidator{
+                govalidator.NonNullableValidator,
+                govalidator.IsStringValidator,
+            },
+        },
+    },
+}
+
+// New Schema API
+schema := govalidator.NewSchema().WithFields(
+    govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+)
+```
+
+---
+
+## Legacy Definition API
+
+> ⚠️ **Deprecated**: The Definition API is maintained for backward compatibility but is no longer recommended for new projects. Please use the Schema API instead.
+
+<details>
+<summary>Click to view legacy Definition API documentation</summary>
+
+### Legacy Usage Example
+
+```go
+package main
+
+import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "github.com/gstachniukrsk/govalidator"
+)
+
+func getModel() govalidator.Definition {
+    return govalidator.Definition{
+        Validator: []govalidator.ContextValidator{},
+        Fields: &map[string]govalidator.Definition{
+            "name": {
+                Validator: []govalidator.ContextValidator{
+                    govalidator.NonNullableValidator,
+                    govalidator.IsStringValidator,
+                },
+            },
+            "age": {
+                Validator: []govalidator.ContextValidator{
+                    govalidator.NonNullableValidator,
+                    govalidator.IsIntegerValidator,
+                },
+            },
+            "gender": {
+                Validator: []govalidator.ContextValidator{
+                    govalidator.NonNullableValidator,
+                    govalidator.IsStringValidator,
+                    govalidator.OneOfValidator("male", "female"),
+                },
+            },
+        },
+    }
 }
 
 func main() {
-	v := validator.NewBasicValidator(validator.PathPresenter("."), validator.SimpleErrorPresenter())
+    v := govalidator.NewBasicValidator(
+        govalidator.PathPresenter("."),
+        govalidator.SimpleErrorPresenter(),
+    )
 
-	var target any
-	err := json.Unmarshal([]byte(validInput), &target)
+    jsonData := `{"name": "John", "age": 30, "gender": "male"}`
+    var data any
+    json.Unmarshal([]byte(jsonData), &data)
 
-	if err != nil {
-		panic(err)
-	}
+    valid, errs := v.Validate(context.Background(), data, getModel())
 
-	valid, errs := v.Validate(context.Background(), target, getModel())
-
-	fmt.Printf("----Valid Example----\n")
-	fmt.Printf("valid: %v\n", valid)
-	fmt.Printf("errors: %v\n", mustFormatErrs(errs))
-
-	err = json.Unmarshal([]byte(invalidInput), &target)
-
-	if err != nil {
-		panic(err)
-	}
-
-	valid, errs = v.Validate(context.Background(), target, getModel())
-
-	fmt.Printf("----Invalid Example----\n")
-	fmt.Printf("valid: %v\n", valid)
-	fmt.Printf("errors: %v\n", mustFormatErrs(errs))
+    if !valid {
+        fmt.Printf("Errors: %v\n", errs)
+    }
 }
-
-func mustFormatErrs(errs map[string][]string) string {
-	b, err := json.MarshalIndent(errs, "", "  ")
-
-	if err != nil {
-		panic(err)
-	}
-
-	return string(b)
-}
-
 ```
-## Predefined Validators
-| Name                 | Description                                                                                               |
-|----------------------|-----------------------------------------------------------------------------------------------------------|
-| FloatValidator    | checks for float or int, if float also verifies if float number is provided with predefined max precision |
-| IsBooleanValidator   | if value is a boolean                                                                                     |
-| IsIntegerValidator   | if value is integer or float with only 0 decimals                                                         |
-| IsListValidator      | if value is of type []interface{}                                                                         |
-| IsMapValidator       | if value is of type map[string]interface{}                                                                |
-| IsStringValidator    | if value is of type string                                                                                |
-| LowerCaseValidator   | if value if string and lowercase                                                                          |
-| MaxFloatValidator    | if value is float and lower than provided expectation                                                     |
-| MaxLengthValidator   | if value is a string and shorter or eq than provided expectation                                          |
-| MinFloatValidator    | if value is a float and higher or eq to than provided expectation                                         |
-| MinLengthValidator   | if value is a string and longer or eq than provided expectation                                           |
-| MinSizeValidator     | if value is a list and its count is higher or eq than provided expectation                                |
-| NonNullableValidator | if value is null, breaks validation on current value                                                      |
-| NullableValidator    | accepts null, breaks current value validation                                                             |
-| NumberValidator      | is number, breaks validation if not, fails                                                                |
-| OneOfValidator       | is one of provided values, can be of mixed types, checks with reflect.DeepEqual                           |
-| RegexpValidator      | matches regexp, if not a string, fails and breaks twig                                                    |
-| UpperCaseValidator   | if value not a string, breaks twig and fails, if a string but not upper cased just fails                  |
 
-## Custom Validators
-You can create your own validators by implementing the ContextValidator interface. The interface is defined as follows:
+### Legacy Object Definition
 
 ```go
-package go-validator
-
-import (
-	"context"
-	"errors"
-	"fmt"
-	"validator/validator"
-)
-
-func SumOfMapPropertiesValidator(propertyName string, expectedSum int) validator.ContextValidator {
-	return func(ctx context.Context, value any) (twigBreak bool, errs []error) {
-		// check if type is correct
-		if _, ok := value.([]map[string]interface{}); !ok {
-			errs = append(errs, errors.New("value is not a list of maps"))
-			return true, errs
-		}
-
-		list := value.([]map[string]interface{})
-
-		// do your validation here
-		sum := 0
-
-		for _, item := range list {
-			if _, ok := item[propertyName]; !ok {
-				errs = append(errs, validator.FieldNotDefinedError{Field: propertyName})
-				return true, errs
-			}
-
-			v, ok := item[propertyName].(int)
-
-			if !ok {
-				errs = append(errs, fmt.Errorf("property %s is not an int", propertyName))
-				return true, errs
-			}
-
-			sum += v
-		}
-
-		if sum != expectedSum {
-			errs = append(errs, fmt.Errorf("sum of %s is not %d, got %d instead", propertyName, expectedSum, sum))
-		}
-
-		return false, errs
-	}
+objModel := govalidator.Definition{
+    Validator: []govalidator.ContextValidator{
+        govalidator.NonNullableValidator,
+        govalidator.IsMapValidator,
+    },
+    AcceptExtraProperty: true,
+    AcceptNotDefinedProperty: true,
+    Fields: &map[string]govalidator.Definition{
+        "field1": {
+            Validator: []govalidator.ContextValidator{
+                govalidator.NonNullableValidator,
+                govalidator.IsStringValidator,
+            },
+        },
+    },
 }
-
 ```
+
+### Legacy Array Definition
+
+```go
+listModel := govalidator.Definition{
+    Validator: []govalidator.ContextValidator{
+        govalidator.NonNullableValidator,
+        govalidator.IsListValidator,
+    },
+    ListOf: &govalidator.Definition{
+        Validator: []govalidator.ContextValidator{
+            govalidator.NonNullableValidator,
+            govalidator.IsStringValidator,
+        },
+    },
+}
+```
+
+</details>
+
+---
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ### Quick Start for Contributors
 
@@ -297,58 +552,19 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for automati
 - `fix:` - Bug fix (patch version bump)
 - `feat!:` - Breaking change (major version bump)
 
-See [RELEASING.md](RELEASING.md) for complete release process.
+See [RELEASE_QUICK_START.md](RELEASE_QUICK_START.md) or [RELEASING.md](RELEASING.md) for the complete release process.
 
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/). Releases are automated based on commit messages when merging to `master`.
 
-## Model definition
+## Documentation
 
-### Map/Object
+- [Migration Guide](MIGRATION_SCHEMA_API.md) - Migrate from Definition to Schema API
+- [Release Guide](RELEASE_QUICK_START.md) - Quick release instructions
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Releasing Guide](RELEASING.md) - Detailed release process
 
-```go
-package go-validator
+## License
 
-import (
-    "validator/validator"
-)
-
-func main() {
-    objModel := validator.Definition{
-		Validator: []validator.ContextValidator{
-			// dont accept null value
-			validator.NonNullableValidator,
-			// its a map
-			validator.IsMapValidator,
-		},
-		// can have any number of properties, not defined in Fields property
-		AcceptExtraProperty: true,
-		// if property not provided for example {"name": null} is not same as {} in terms of `name` property, 
-		//   but if `name` property is defined in `Fields` and has a validator that fails with
-		//   `validator.RequiredError` then it will fail on it anyway
-		AcceptNotDefinedProperty: true,
-		// it's map only if it has defined fields, can be empty, but can't be null
-		Fields: &map[string]validator.Definition{
-			"field1": {
-                Validator: []validator.ContextValidator{
-                    validator.NonNullableValidator,
-                    validator.IsStringValidator,
-                },
-            },
-		},
-    }
-	
-	listModel := validator.Definition{
-        Validator: []validator.ContextValidator{
-            // dont accept null value
-            validator.NonNullableValidator,
-            // it's a list
-            validator.IsListValidator,
-        },
-		// it's list only if ListOf is defined
-		ListOf: &objModel,
-    }
-}
-
-```
+[MIT License](LICENSE)
