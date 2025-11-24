@@ -279,6 +279,7 @@ func (s *Schema) ToDefinition() Definition {
 }
 
 // Validate validates a value against this schema using default presenters.
+// Uses the modern SchemaValidator for direct, non-legacy validation.
 //
 // Example:
 //
@@ -289,11 +290,12 @@ func (s *Schema) ToDefinition() Definition {
 //	    }
 //	}
 func (s *Schema) Validate(ctx context.Context, value any) (bool, map[string][]string) {
-	v := NewBasicValidator(PathPresenter("."), SimpleErrorPresenter())
-	return v.Validate(ctx, value, s.ToDefinition())
+	v := NewSchemaValidator(PathPresenter("."), SimpleErrorPresenter())
+	return v.Validate(ctx, value, s)
 }
 
 // ValidateWithPresenter validates a value with custom error presentation.
+// Uses the modern SchemaValidator for direct, non-legacy validation.
 //
 // Example:
 //
@@ -309,11 +311,12 @@ func (s *Schema) ValidateWithPresenter(
 	pathPresenter PresenterFunc,
 	errorPresenter PresenterFunc,
 ) (bool, map[string][]string) {
-	v := NewBasicValidator(pathPresenter, errorPresenter)
-	return v.Validate(ctx, value, s.ToDefinition())
+	v := NewSchemaValidator(pathPresenter, errorPresenter)
+	return v.Validate(ctx, value, s)
 }
 
 // ValidateFlat validates and returns errors as a flat list of strings.
+// Uses the modern SchemaValidator for direct, non-legacy validation.
 //
 // Example:
 //
@@ -328,6 +331,6 @@ func (s *Schema) ValidateFlat(
 	value any,
 	combiner PresenterFunc,
 ) (bool, []string) {
-	v := NewFlatListValidator(combiner)
-	return v.Validate(ctx, value, s.ToDefinition())
+	v := NewSchemaValidator(PathPresenter("."), SimpleErrorPresenter())
+	return v.ValidateFlat(ctx, value, s, combiner)
 }
