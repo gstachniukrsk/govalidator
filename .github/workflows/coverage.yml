@@ -1,0 +1,96 @@
+name: Code Coverage
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  coverage:
+    name: Check Code Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run tests with coverage
+      run: |
+        go test -v -coverprofile=coverage.out -covermode=atomic ./...
+
+    - name: Calculate coverage
+      id: coverage
+      run: |
+        TOTAL_COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "coverage=$TOTAL_COVERAGE" >> $GITHUB_OUTPUT
+        echo "Total Coverage: ${TOTAL_COVERAGE}%"
+
+    - name: Check coverage threshold
+      run: |
+        TOTAL_COVERAGE=${{ steps.coverage.outputs.coverage }}
+        MIN_COVERAGE=95.0
+
+        echo "=========================================="
+        echo "Total Coverage: ${TOTAL_COVERAGE}%"
+        echo "Required Coverage: ${MIN_COVERAGE}%"
+        echo "=========================================="
+
+        if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
+          echo ""
+          echo "❌ FAILED: Coverage ${TOTAL_COVERAGE}% is below required ${MIN_COVERAGE}%"
+          echo ""
+          echo "Uncovered code:"
+          go tool cover -func=coverage.out | grep -v "100.0%" | grep -v "total:"
+          exit 1
+        else
+          echo ""
+          echo "✅ PASSED: Coverage meets requirement of ${MIN_COVERAGE}%"
+        fi
+
+    - name: Generate coverage report
+      run: go tool cover -func=coverage.out
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const coverage = '${{ steps.coverage.outputs.coverage }}';
+          const minCoverage = '95.0';
+          const passed = parseFloat(coverage) >= parseFloat(minCoverage);
+          const emoji = passed ? '✅' : '❌';
+
+          const body = `## ${emoji} Code Coverage Report
+
+          - **Total Coverage:** ${coverage}%
+          - **Required:** ${minCoverage}%
+          - **Status:** ${passed ? 'PASSED' : 'FAILED'}
+
+          ${passed ? '✅ Coverage meets the required threshold!' : '❌ Coverage is below the required threshold. Please add tests.'}
+          `;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });

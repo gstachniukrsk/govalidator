@@ -386,6 +386,80 @@ func TestSchema_ValidateWithPresenter(t *testing.T) {
 	})
 }
 
+func TestSchema_ToDefinition(t *testing.T) {
+	t.Run("converts simple required schema", func(t *testing.T) {
+		schema := govalidator.NewSchema(govalidator.IsStringValidator).Required()
+		def := schema.ToDefinition()
+
+		assert.NotNil(t, def.Validator)
+		assert.Len(t, def.Validator, 2) // NonNullableValidator + IsStringValidator
+	})
+
+	t.Run("converts simple optional schema", func(t *testing.T) {
+		schema := govalidator.NewSchema(govalidator.IsStringValidator).Optional()
+		def := schema.ToDefinition()
+
+		assert.NotNil(t, def.Validator)
+		assert.Len(t, def.Validator, 2) // NullableValidator + IsStringValidator
+	})
+
+	t.Run("converts object schema with fields", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+			govalidator.NewField("age").Optional().WithValidators(govalidator.IsIntegerValidator),
+		)
+		def := schema.ToDefinition()
+
+		assert.NotNil(t, def.Fields)
+		assert.Len(t, *def.Fields, 2)
+		assert.Contains(t, *def.Fields, "name")
+		assert.Contains(t, *def.Fields, "age")
+	})
+
+	t.Run("converts array schema with items", func(t *testing.T) {
+		schema := govalidator.Array(
+			govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+		).Required()
+		def := schema.ToDefinition()
+
+		assert.NotNil(t, def.ListOf)
+	})
+
+	t.Run("converts ExtraIgnore mode", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+		).WithExtra(govalidator.ExtraIgnore)
+		def := schema.ToDefinition()
+
+		assert.True(t, def.AcceptExtraProperty)
+	})
+
+	t.Run("converts ExtraForbid mode", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+		).WithExtra(govalidator.ExtraForbid)
+		def := schema.ToDefinition()
+
+		assert.False(t, def.AcceptExtraProperty)
+	})
+
+	t.Run("converts nested objects", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("user").Required().WithSchema(
+				govalidator.NewSchema().WithFields(
+					govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+				),
+			),
+		)
+		def := schema.ToDefinition()
+
+		assert.NotNil(t, def.Fields)
+		userDef := (*def.Fields)["user"]
+		assert.NotNil(t, userDef.Fields)
+		assert.Contains(t, *userDef.Fields, "name")
+	})
+}
+
 func TestNewField(t *testing.T) {
 	t.Run("creates field with name", func(t *testing.T) {
 		field := govalidator.NewField("email")

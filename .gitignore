@@ -2,3 +2,5 @@ main.go
 validator.iml
 .idea
 .claude
+coverage.html
+coverage.out
