@@ -1,0 +1,38 @@
+name: Examples
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-examples:
+    name: Build Examples
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - http-api
+          - csv-validator
+          - config-loader
+          - webhook-handler
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.24'
+
+    - name: Build ${{ matrix.example }}
+      run: |
+        cd examples/${{ matrix.example }}
+        go build -v .
+
+    - name: Check example compiles
+      run: |
+        cd examples/${{ matrix.example }}
+        go build -o example-binary .
+        ls -lh example-binary
