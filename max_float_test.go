@@ -1,6 +1,7 @@
 package govalidator
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -100,4 +101,38 @@ func TestMaxFloatValidator(t *testing.T) {
 			assert.Equal(t, tt.wantErrs, errs)
 		})
 	}
+}
+
+func TestMaxFloatError(t *testing.T) {
+	t.Run("MaxFloatError Error method", func(t *testing.T) {
+		err := FloatTooLargeError{MaxFloat: 100.0}
+		assert.Equal(t, "value is greater than max", err.Error())
+		assert.Equal(t, 100.0, err.MaxFloat)
+	})
+}
+
+func TestMaxFloatValidator_Coverage(t *testing.T) {
+	t.Run("MaxFloatValidator with edge cases", func(t *testing.T) {
+		validator := MaxFloatValidator(100.0)
+
+		// Test with float below max
+		shouldBlock, errs := validator(context.Background(), 50.0)
+		assert.False(t, shouldBlock)
+		assert.Empty(t, errs)
+
+		// Test with float above max - should block
+		shouldBlock, errs = validator(context.Background(), 150.0)
+		assert.True(t, shouldBlock)
+		assert.NotEmpty(t, errs)
+
+		// Test with int below max
+		shouldBlock, errs = validator(context.Background(), 50)
+		assert.False(t, shouldBlock)
+		assert.Empty(t, errs)
+
+		// Test with wrong type - should block
+		shouldBlock, errs = validator(context.Background(), "not a number")
+		assert.True(t, shouldBlock)
+		assert.NotEmpty(t, errs)
+	})
 }

@@ -164,3 +164,153 @@ func TestJSONDetailedPresenter(t *testing.T) {
 		})
 	}
 }
+
+func TestJSONPresenter_Coverage(t *testing.T) {
+	t.Run("JSONPresenter with various errors", func(t *testing.T) {
+		presenter := govalidator.JSONPresenter(".")
+
+		errors := []error{
+			govalidator.RequiredError{},
+			govalidator.StringTooShortError{MinLength: 5},
+			govalidator.FloatPrecisionError{ExpectedPrecision: 2, ActualPrecision: 4},
+		}
+
+		for _, err := range errors {
+			result := presenter(context.Background(), []string{"$", "field"}, err)
+			assert.Contains(t, result, "{")
+			assert.Contains(t, result, "}")
+		}
+	})
+
+	t.Run("JSONDetailedPresenter with errors", func(t *testing.T) {
+		presenter := govalidator.JSONDetailedPresenter(".")
+
+		errors := []error{
+			govalidator.MinSizeError{MinSize: 1, ActualSize: 0},
+			govalidator.FloatPrecisionError{ExpectedPrecision: 2, ActualPrecision: 4},
+			govalidator.StringTooShortError{MinLength: 5},
+			govalidator.FieldNotDefinedError{Field: "test"},
+			govalidator.RequiredError{},
+		}
+
+		for _, err := range errors {
+			result := presenter(context.Background(), []string{"$"}, err)
+			assert.Contains(t, result, "{")
+			assert.Contains(t, result, "}")
+		}
+	})
+}
+
+func TestJSONPresenter_AllErrors(t *testing.T) {
+	presenter := govalidator.JSONPresenter(".")
+
+	errors := []error{
+		govalidator.RequiredError{},
+		govalidator.NotAStringError{},
+		govalidator.NotAnIntegerError{},
+		govalidator.NotAFloatError{},
+		govalidator.NotABooleanError{},
+		govalidator.NotAMapError{},
+		govalidator.NotAListError{},
+		govalidator.StringTooShortError{MinLength: 5},
+		govalidator.StringTooLongError{MaxLength: 10},
+		govalidator.FloatTooSmallError{MinFloat: 0.0},
+		govalidator.FloatTooLargeError{MaxFloat: 100.0},
+		govalidator.FloatPrecisionError{ExpectedPrecision: 2, ActualPrecision: 4},
+		govalidator.MinSizeError{MinSize: 1, ActualSize: 0},
+		govalidator.MaxSizeError{MaxSize: 10, ActualSize: 15},
+		govalidator.FieldNotDefinedError{Field: "test"},
+		govalidator.UnexpectedFieldError{Field: "extra"},
+		govalidator.InvalidOptionError{Options: []any{"a", "b"}},
+		govalidator.ValueNotMatchingPatternError{Pattern: "^test$"},
+		govalidator.NotLowerCasedError{},
+		govalidator.NotUpperCasedError{},
+		govalidator.NotANumberError{},
+		govalidator.NotAValueError{},
+		govalidator.NotAnObjectError{},
+	}
+
+	for _, err := range errors {
+		result := presenter(context.Background(), []string{"$"}, err)
+		assert.Contains(t, result, "{")
+		assert.Contains(t, result, "}")
+	}
+}
+
+func TestJSONDetailedPresenter_AllErrors(t *testing.T) {
+	presenter := govalidator.JSONDetailedPresenter(".")
+
+	errors := []error{
+		govalidator.RequiredError{},
+		govalidator.NotAStringError{},
+		govalidator.NotAnIntegerError{},
+		govalidator.NotAFloatError{},
+		govalidator.NotABooleanError{},
+		govalidator.NotAMapError{},
+		govalidator.NotAListError{},
+		govalidator.StringTooShortError{MinLength: 5},
+		govalidator.StringTooLongError{MaxLength: 10},
+		govalidator.FloatTooSmallError{MinFloat: 0.0},
+		govalidator.FloatTooLargeError{MaxFloat: 100.0},
+		govalidator.FloatPrecisionError{ExpectedPrecision: 2, ActualPrecision: 4},
+		govalidator.MinSizeError{MinSize: 1, ActualSize: 0},
+		govalidator.MaxSizeError{MaxSize: 10, ActualSize: 15},
+		govalidator.FieldNotDefinedError{Field: "test"},
+		govalidator.UnexpectedFieldError{Field: "extra"},
+		govalidator.InvalidOptionError{Options: []any{"a", "b"}},
+		govalidator.ValueNotMatchingPatternError{Pattern: "^test$"},
+		govalidator.NotLowerCasedError{},
+		govalidator.NotUpperCasedError{},
+		govalidator.NotANumberError{},
+		govalidator.NotAValueError{},
+		govalidator.NotAnObjectError{},
+	}
+
+	for _, err := range errors {
+		result := presenter(context.Background(), []string{"$"}, err)
+		assert.Contains(t, result, "{")
+		assert.Contains(t, result, "}")
+	}
+}
+
+func TestJSONPresenter_MissingErrorTypes(t *testing.T) {
+	t.Run("covers all error types in getErrorType", func(t *testing.T) {
+		presenter := govalidator.JSONPresenter(".")
+
+		// Test errors that might be missing from coverage
+		errors := []error{
+			govalidator.NotAValueError{},
+			govalidator.NotAnObjectError{},
+			govalidator.InvalidOptionError{Options: []any{"a", "b"}},
+			govalidator.ValueNotMatchingPatternError{Pattern: "test"},
+			govalidator.NotLowerCasedError{},
+			govalidator.NotUpperCasedError{},
+		}
+
+		for _, err := range errors {
+			result := presenter(context.Background(), []string{"$"}, err)
+			assert.Contains(t, result, "{")
+			assert.Contains(t, result, "message")
+		}
+	})
+
+	t.Run("handles edge cases in path rendering", func(t *testing.T) {
+		presenter := govalidator.JSONPresenter(".")
+
+		// Test with various path structures
+		testCases := []struct {
+			path []string
+			err  error
+		}{
+			{[]string{}, govalidator.RequiredError{}},
+			{[]string{"$"}, govalidator.RequiredError{}},
+			{[]string{"$", "field", "[0]", "nested"}, govalidator.RequiredError{}},
+		}
+
+		for _, tc := range testCases {
+			result := presenter(context.Background(), tc.path, tc.err)
+			assert.Contains(t, result, "{")
+			assert.Contains(t, result, "path")
+		}
+	})
+}

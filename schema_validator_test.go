@@ -2,9 +2,10 @@ package govalidator_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/gstachniukrsk/govalidator"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSchemaValidator_SimpleValidation(t *testing.T) {
@@ -828,6 +829,7 @@ func TestSchemaValidator_CustomPresenters(t *testing.T) {
 		assert.False(t, valid)
 		// DetailedErrorPresenter gives more descriptive messages
 		assert.NotEmpty(t, errs["$"])
+		assert.Equal(t, "value must be a string", errs["$"][0])
 	})
 }
 
@@ -860,5 +862,60 @@ func TestSchemaValidator_ValidateFlat(t *testing.T) {
 		// Errors should be in format "path: message"
 		assert.Contains(t, errs[0]+errs[1], "$.name")
 		assert.Contains(t, errs[0]+errs[1], "$.age")
+	})
+}
+
+func TestSchemaValidator_ArrayEdgeCases(t *testing.T) {
+	t.Run("validates nil array", func(t *testing.T) {
+		schema := govalidator.Array(
+			govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+		).Required()
+
+		validator := govalidator.NewSchemaValidator(
+			govalidator.PathPresenter("."),
+			govalidator.SimpleErrorPresenter(),
+		)
+
+		valid, errs := validator.Validate(context.Background(), nil, schema)
+
+		assert.False(t, valid)
+		assert.Contains(t, errs, "$")
+	})
+}
+
+func TestSchemaValidator_ValidateArray_WrongType(t *testing.T) {
+	t.Run("rejects non-array value", func(t *testing.T) {
+		schema := govalidator.Array(
+			govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+		).Required()
+
+		validator := govalidator.NewSchemaValidator(
+			govalidator.PathPresenter("."),
+			govalidator.SimpleErrorPresenter(),
+		)
+
+		// Pass a string instead of an array
+		valid, errs := validator.Validate(context.Background(), "not an array", schema)
+
+		assert.False(t, valid)
+		assert.Contains(t, errs, "$")
+	})
+
+	t.Run("rejects nil typed as []any", func(t *testing.T) {
+		schema := govalidator.Array(
+			govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+		).Required()
+
+		validator := govalidator.NewSchemaValidator(
+			govalidator.PathPresenter("."),
+			govalidator.SimpleErrorPresenter(),
+		)
+
+		// Pass nil with type []any to trigger the nil check in validateArray
+		var nilArray []any = nil
+		valid, errs := validator.Validate(context.Background(), nilArray, schema)
+
+		assert.False(t, valid)
+		assert.Contains(t, errs, "$")
 	})
 }

@@ -1,6 +1,9 @@
 package govalidator
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 // ContextValidator is a function that validates a value and returns validation errors.
 type ContextValidator func(ctx context.Context, value any) (twigBlock bool, errs []error)
@@ -15,7 +18,8 @@ func (v ContextValidator) AcceptsNull() bool {
 	_, errs := v.Validate(context.Background(), nil)
 
 	for _, err := range errs {
-		if _, ok := err.(RequiredError); ok { //nolint:errorlint // RequiredError is not wrapped in this codebase
+		var requiredError RequiredError
+		if errors.As(err, &requiredError) {
 			return false
 		}
 	}
