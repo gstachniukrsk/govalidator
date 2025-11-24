@@ -2,6 +2,7 @@ package govalidator
 
 import "context"
 
+// NullableValidator allows null values and stops validation chain when encountering null.
 func NullableValidator(_ context.Context, value any) (twigBlock bool, errs []error) {
 	if value == nil {
 		twigBlock = true

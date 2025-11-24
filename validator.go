@@ -11,12 +11,14 @@ type validator struct {
 	errorCollectors []Collector
 }
 
+// Validator is the interface for validating values against a definition.
 type Validator interface {
 	Validate(ctx context.Context, key string, value any, validator Definition)
 	WithCollector(collector Collector) Validator
 	Copy() Validator
 }
 
+// BasicValidator is a simplified validator interface that returns validation results directly.
 type BasicValidator interface {
 	Validate(ctx context.Context, value any, def Definition) (bool, map[string][]string)
 }
@@ -26,6 +28,7 @@ type basicValidator struct {
 	errPresenter  PresenterFunc
 }
 
+// NewBasicValidator creates a new BasicValidator with the given presenters.
 func NewBasicValidator(pathPresenter PresenterFunc, errPresenter PresenterFunc) BasicValidator {
 	return &basicValidator{
 		pathPresenter: pathPresenter,
@@ -44,6 +47,7 @@ func (bv *basicValidator) Validate(ctx context.Context, value any, def Definitio
 	return len(errs) == 0, errs
 }
 
+// NewValidator creates a new Validator instance.
 func NewValidator() Validator {
 	return &validator{
 		errorCollectors: []Collector{},

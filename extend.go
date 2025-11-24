@@ -1,5 +1,6 @@
 package govalidator
 
+// ExtendedWith merges two definitions, combining validators, fields, and list definitions.
 func (d Definition) ExtendedWith(def Definition) Definition {
 	out := Definition{}
 

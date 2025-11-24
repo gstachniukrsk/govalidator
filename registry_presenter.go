@@ -10,11 +10,13 @@ type registryPresenter struct {
 	fallback PresenterFunc
 }
 
+// RegistryPresenter manages error presentation functions for different error types.
 type RegistryPresenter interface {
 	Register(err error, presenter PresenterFunc)
 	Present(ctx context.Context, path []string, err error) string
 }
 
+// NewRegistryPresenter creates a new RegistryPresenter with a fallback presenter and initial registry.
 func NewRegistryPresenter(
 	fallback PresenterFunc,
 	registry map[error]PresenterFunc,

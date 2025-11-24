@@ -1,5 +1,6 @@
 package govalidator
 
+// Definition describes validation rules for a value, including validators, fields, and list items.
 type Definition struct {
 	Validator []ContextValidator
 	// for objects

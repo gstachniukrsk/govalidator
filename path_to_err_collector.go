@@ -8,11 +8,13 @@ type pathToErrCollector struct {
 	errPresenter  PresenterFunc
 }
 
+// PathToErrCollector collects validation errors and organizes them by path.
 type PathToErrCollector interface {
 	Collect(ctx context.Context, path []string, err error)
 	GetErrors() map[string][]string
 }
 
+// NewPathToErrCollector creates a new PathToErrCollector with custom path and error presenters.
 func NewPathToErrCollector(pathPresenter PresenterFunc, errPresenter PresenterFunc) PathToErrCollector {
 	return &pathToErrCollector{
 		errs:          make(map[string][]string, 0),

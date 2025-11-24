@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
+// NonNullableValidator ensures that a value is not null and returns a RequiredError if it is.
 func NonNullableValidator(_ context.Context, value any) (twigBlock bool, errs []error) {
 	if value == nil {
 		errs = append(errs, RequiredError{})
