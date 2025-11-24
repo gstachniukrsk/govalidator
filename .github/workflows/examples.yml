@@ -7,32 +7,152 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-examples:
-    name: Build Examples
+  test-csv-validator:
+    name: Test CSV Validator
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        example:
-          - http-api
-          - csv-validator
-          - config-loader
-          - webhook-handler
-
     steps:
     - uses: actions/checkout@v3
-
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: '1.24'
-
-    - name: Build ${{ matrix.example }}
+    - name: Run CSV validator example
       run: |
-        cd examples/${{ matrix.example }}
-        go build -v .
+        cd examples/csv-validator
+        go run main.go > output.txt 2>&1
+        # Verify it creates the expected files
+        test -f employees.csv || (echo "employees.csv not created" && exit 1)
+        test -f invalid_rows.json || (echo "invalid_rows.json not created" && exit 1)
+        # Verify output contains expected validation results
+        grep -q "CSV VALIDATION RESULTS" output.txt || (echo "Missing validation results" && exit 1)
+        grep -q "Summary:" output.txt || (echo "Missing summary" && exit 1)
+        grep -q "VALID" output.txt || (echo "No valid rows found" && exit 1)
+        grep -q "INVALID" output.txt || (echo "No invalid rows found" && exit 1)
+        echo "✓ CSV validator example works correctly"
 
-    - name: Check example compiles
+  test-config-loader:
+    name: Test Config Loader
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.24'
+    - name: Run config loader example
       run: |
-        cd examples/${{ matrix.example }}
-        go build -o example-binary .
-        ls -lh example-binary
+        cd examples/config-loader
+        go run main.go > output.txt 2>&1
+        # Verify it creates config files
+        test -f config.json || (echo "config.json not created" && exit 1)
+        test -f config-invalid.json || (echo "config-invalid.json not created" && exit 1)
+        # Verify output contains expected validation results
+        grep -q "TESTING VALID CONFIGURATION" output.txt || (echo "Missing valid config test" && exit 1)
+        grep -q "TESTING INVALID CONFIGURATION" output.txt || (echo "Missing invalid config test" && exit 1)
+        grep -q "Configuration loaded and validated successfully" output.txt || (echo "Valid config failed" && exit 1)
+        grep -q "Invalid configuration correctly rejected" output.txt || (echo "Invalid config was not rejected" && exit 1)
+        echo "✓ Config loader example works correctly"
+
+  test-http-api:
+    name: Test HTTP API
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.24'
+    - name: Start HTTP API server
+      run: |
+        cd examples/http-api
+        go run main.go &
+        SERVER_PID=$!
+        echo $SERVER_PID > /tmp/server.pid
+        sleep 2
+    - name: Test valid user registration
+      run: |
+        response=$(curl -s -X POST http://localhost:8080/api/users/register \
+          -H "Content-Type: application/json" \
+          -d '{"username":"john_doe","email":"john@example.com","password":"secret123","role":"user","age":25}')
+        echo "$response" | grep -q "User registered successfully" || (echo "Valid request failed: $response" && exit 1)
+        echo "✓ Valid user registration works"
+    - name: Test invalid user registration
+      run: |
+        response=$(curl -s -w "\n%{http_code}" -X POST http://localhost:8080/api/users/register \
+          -H "Content-Type: application/json" \
+          -d '{"username":"jo","email":"invalid-email","password":"short"}')
+        status_code=$(echo "$response" | tail -n1)
+        body=$(echo "$response" | head -n-1)
+        [ "$status_code" = "422" ] || (echo "Expected 422, got $status_code" && exit 1)
+        echo "$body" | grep -q "Validation failed" || (echo "Expected validation error" && exit 1)
+        echo "✓ Invalid user registration correctly rejected"
+    - name: Test valid product creation
+      run: |
+        response=$(curl -s -X POST http://localhost:8080/api/products \
+          -H "Content-Type: application/json" \
+          -d '{"name":"Laptop","description":"High-performance","price":999.99,"categories":["electronics"]}')
+        echo "$response" | grep -q "Product created successfully" || (echo "Valid product creation failed: $response" && exit 1)
+        echo "✓ Valid product creation works"
+    - name: Cleanup
+      if: always()
+      run: |
+        if [ -f /tmp/server.pid ]; then
+          kill $(cat /tmp/server.pid) 2>/dev/null || true
+        fi
+
+  test-webhook-handler:
+    name: Test Webhook Handler
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.24'
+    - name: Start webhook server
+      run: |
+        cd examples/webhook-handler
+        go run main.go &
+        SERVER_PID=$!
+        echo $SERVER_PID > /tmp/webhook.pid
+        sleep 2
+    - name: Test valid GitHub webhook
+      run: |
+        response=$(curl -s -X POST http://localhost:8080/webhooks/github \
+          -H "Content-Type: application/json" \
+          -d '{
+            "ref": "refs/heads/main",
+            "before": "0000000000000000000000000000000000000000",
+            "after": "1111111111111111111111111111111111111111",
+            "repository": {"name": "test", "full_name": "user/test", "owner": {"name": "user"}},
+            "pusher": {"name": "John Doe", "email": "john@example.com"},
+            "commits": [{
+              "id": "1111111111111111111111111111111111111111",
+              "message": "test",
+              "timestamp": "2024-01-01T12:00:00Z",
+              "author": {"name": "John", "email": "john@example.com"}
+            }]
+          }')
+        echo "$response" | grep -q "processed successfully" || (echo "Valid GitHub webhook failed: $response" && exit 1)
+        echo "✓ Valid GitHub webhook works"
+    - name: Test valid Stripe webhook
+      run: |
+        response=$(curl -s -X POST http://localhost:8080/webhooks/stripe \
+          -H "Content-Type: application/json" \
+          -d '{"id":"evt_123","type":"payment_intent.succeeded","created":1704110400,"data":{"object":{"id":"pi_123"}}}')
+        echo "$response" | grep -q "processed successfully" || (echo "Valid Stripe webhook failed: $response" && exit 1)
+        echo "✓ Valid Stripe webhook works"
+    - name: Test invalid Stripe webhook
+      run: |
+        response=$(curl -s -w "\n%{http_code}" -X POST http://localhost:8080/webhooks/stripe \
+          -H "Content-Type: application/json" \
+          -d '{"id":"evt_123","type":"invalid.type","created":1704110400,"data":{"object":{}}}')
+        status_code=$(echo "$response" | tail -n1)
+        [ "$status_code" = "422" ] || (echo "Expected 422 for invalid webhook, got $status_code" && exit 1)
+        echo "✓ Invalid Stripe webhook correctly rejected"
+    - name: Cleanup
+      if: always()
+      run: |
+        if [ -f /tmp/webhook.pid ]; then
+          kill $(cat /tmp/webhook.pid) 2>/dev/null || true
+        fi
