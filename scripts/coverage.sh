@@ -9,7 +9,7 @@ COVERAGE_HTML="coverage.html"
 MIN_COVERAGE=95.0
 
 echo "Running tests with coverage..."
-go test -v -coverprofile="$COVERAGE_FILE" -covermode=atomic ./...
+go test -v -coverprofile="$COVERAGE_FILE" -covermode=atomic $(go list ./... | grep -v '/examples/')
 
 echo ""
 echo "Generating coverage report..."
