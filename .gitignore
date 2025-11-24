@@ -1,6 +1,14 @@
-main.go
+# Ignore main.go at root level only (not in examples/)
+/main.go
+
 validator.iml
 .idea
 .claude
 coverage.html
 coverage.out
+
+# Ignore example-generated files
+examples/config-loader/config.json
+examples/config-loader/config-invalid.json
+examples/csv-validator/employees.csv
+examples/csv-validator/invalid_rows.json

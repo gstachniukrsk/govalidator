@@ -66,6 +66,17 @@ func main() {
 }
 ```
 
+## Examples
+
+Check out the [examples/](examples/) directory for real-world, runnable examples:
+
+- **[http-api/](examples/http-api/)** - REST API request validation with user registration and product creation endpoints
+- **[csv-validator/](examples/csv-validator/)** - CSV file validation with row-by-row error reporting and JSON export
+- **[config-loader/](examples/config-loader/)** - Application configuration validation with nested objects and fail-fast loading
+- **[webhook-handler/](examples/webhook-handler/)** - GitHub and Stripe webhook validation with signature verification
+
+Each example is self-contained and includes detailed documentation. See [examples/README.md](examples/README.md) for more information.
+
 ## Schema API (Recommended)
 
 The modern Schema API provides a clean, intuitive way to define validation rules.
