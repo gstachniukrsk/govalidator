@@ -385,3 +385,149 @@ func TestSchema_ValidateWithPresenter(t *testing.T) {
 		assert.Contains(t, errs["$"][0], "at least 5")
 	})
 }
+
+func TestNewField(t *testing.T) {
+	t.Run("creates field with name", func(t *testing.T) {
+		field := govalidator.NewField("email")
+		assert.NotNil(t, field)
+	})
+
+	t.Run("field can be marked required", func(t *testing.T) {
+		field := govalidator.NewField("email").Required()
+		assert.NotNil(t, field)
+	})
+
+	t.Run("field can have validators", func(t *testing.T) {
+		field := govalidator.NewField("email").
+			Required().
+			WithValidators(govalidator.IsStringValidator)
+		assert.NotNil(t, field)
+	})
+}
+
+func TestSchema_WithFieldsBuilder(t *testing.T) {
+	t.Run("can use builder pattern with NewField", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+			govalidator.NewField("age").Optional().WithValidators(govalidator.IsIntegerValidator),
+		)
+
+		data := map[string]any{
+			"name": "John",
+			"age":  30,
+		}
+
+		valid, errs := schema.Validate(context.Background(), data)
+
+		assert.True(t, valid)
+		assert.Empty(t, errs)
+	})
+
+	t.Run("builder pattern validates required fields", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+			govalidator.NewField("age").Required().WithValidators(govalidator.IsIntegerValidator),
+		)
+
+		data := map[string]any{
+			"name": "John",
+			// age is missing
+		}
+
+		valid, errs := schema.Validate(context.Background(), data)
+
+		assert.False(t, valid)
+		assert.NotEmpty(t, errs)
+	})
+
+	t.Run("builder pattern with nested schema", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").Required().WithValidators(govalidator.IsStringValidator),
+			govalidator.NewField("address").Optional().WithSchema(
+				govalidator.Object(map[string]*govalidator.Schema{
+					"street": govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+					"city":   govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+				}),
+			),
+		)
+
+		data := map[string]any{
+			"name": "John",
+			"address": map[string]any{
+				"street": "123 Main St",
+				"city":   "Springfield",
+			},
+		}
+
+		valid, errs := schema.Validate(context.Background(), data)
+
+		assert.True(t, valid)
+		assert.Empty(t, errs)
+	})
+
+	t.Run("builder pattern maintains backward compatibility with map", func(t *testing.T) {
+		// Old map-based API should still work
+		schema := govalidator.NewSchema().WithFields(map[string]*govalidator.Schema{
+			"name": govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+			"age":  govalidator.NewSchema(govalidator.IsIntegerValidator).Optional(),
+		})
+
+		data := map[string]any{
+			"name": "John",
+			"age":  30,
+		}
+
+		valid, errs := schema.Validate(context.Background(), data)
+
+		assert.True(t, valid)
+		assert.Empty(t, errs)
+	})
+
+	t.Run("complex nested schema with builder pattern", func(t *testing.T) {
+		schema := govalidator.NewSchema().WithFields(
+			govalidator.NewField("name").
+				Required().
+				WithValidators(
+					govalidator.IsStringValidator,
+					govalidator.MinLengthValidator(3),
+				),
+			govalidator.NewField("email").
+				Required().
+				WithValidators(govalidator.IsStringValidator),
+			govalidator.NewField("age").
+				Optional().
+				WithValidators(govalidator.IsIntegerValidator),
+			govalidator.NewField("tags").
+				Optional().
+				WithSchema(
+					govalidator.Array(
+						govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+					),
+				),
+			govalidator.NewField("address").
+				Optional().
+				WithSchema(
+					govalidator.Object(map[string]*govalidator.Schema{
+						"street": govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+						"city":   govalidator.NewSchema(govalidator.IsStringValidator).Required(),
+						"zip":    govalidator.NewSchema(govalidator.IsStringValidator).Optional(),
+					}),
+				),
+		).WithExtra(govalidator.ExtraForbid)
+
+		data := map[string]any{
+			"name":  "John Doe",
+			"email": "john@example.com",
+			"tags":  []any{"developer", "golang"},
+			"address": map[string]any{
+				"street": "123 Main St",
+				"city":   "Springfield",
+			},
+		}
+
+		valid, errs := schema.Validate(context.Background(), data)
+
+		assert.True(t, valid)
+		assert.Empty(t, errs)
+	})
+}

@@ -36,13 +36,22 @@ validator.Definition{
 
 ### New Schema API
 ```go
-// Fluent style
+// Fluent style with map
 NewSchema(
     IsStringValidator,
     MinLengthValidator(5),
 ).Required().WithFields(map[string]*Schema{  // ✅ Required separate
     "name": NewSchema(IsStringValidator).Required(),
 }).WithExtra(ExtraForbid)  // ✅ Clear enum
+
+// OR builder pattern style (recommended)
+NewSchema(
+    IsStringValidator,
+    MinLengthValidator(5),
+).Required().WithFields(  // ✅ Clean field definitions
+    NewField("name").Required().WithValidators(IsStringValidator),
+    NewField("age").Optional().WithValidators(IsIntegerValidator),
+).WithExtra(ExtraForbid)
 
 // OR struct literal style
 &Schema{
@@ -111,7 +120,15 @@ def := Definition{
 }
 ```
 
-**After (Option 1 - Fluent):**
+**After (Option 1 - Builder Pattern - Recommended):**
+```go
+schema := NewSchema().WithFields(
+    NewField("name").Required().WithValidators(IsStringValidator),
+    NewField("age").Required().WithValidators(IsIntegerValidator),
+).WithExtra(ExtraForbid)
+```
+
+**After (Option 2 - Fluent with Map):**
 ```go
 schema := Object(map[string]*Schema{
     "name": NewSchema(IsStringValidator).Required(),
@@ -119,7 +136,7 @@ schema := Object(map[string]*Schema{
 }).WithExtra(ExtraForbid)
 ```
 
-**After (Option 2 - Struct Literal):**
+**After (Option 3 - Struct Literal):**
 ```go
 schema := &Schema{
     Fields: map[string]*Schema{
@@ -132,7 +149,8 @@ schema := &Schema{
 
 **Key changes:**
 - ❌ Remove pointer: `*map[string]Definition` → `map[string]*Schema`
-- ✅ Use `Object()` helper for clarity
+- ✅ Use `NewField()` builder for clean, inline field definitions (recommended)
+- ✅ Or use `Object()` helper with map for brevity
 - ❌ Replace `AcceptExtraProperty: false` → ✅ `Extra: ExtraForbid`
 - ❌ Replace `AcceptExtraProperty: true` → ✅ `Extra: ExtraIgnore`
 
@@ -202,7 +220,18 @@ def := Definition{
 }
 ```
 
-**After:**
+**After (Builder Pattern):**
+```go
+schema := NewSchema().WithFields(
+    NewField("user").WithSchema(
+        NewSchema().WithFields(
+            NewField("name").Required().WithValidators(IsStringValidator),
+        ),
+    ),
+)
+```
+
+**After (Object Helper):**
 ```go
 schema := Object(map[string]*Schema{
     "user": Object(map[string]*Schema{
@@ -245,7 +274,24 @@ model := Definition{
 }
 ```
 
-**After:**
+**After (Builder Pattern - Recommended):**
+```go
+schema := NewSchema().WithFields(
+    NewField("name").Required().WithValidators(IsStringValidator),
+    NewField("phones").Required().WithSchema(
+        Array(
+            NewSchema().WithFields(
+                NewField("type").Required().WithValidators(
+                    IsStringValidator,
+                    OneOfValidator("home", "work"),
+                ),
+            ).Required(),
+        ),
+    ),
+)
+```
+
+**After (Object/Array Helpers):**
 ```go
 schema := Object(map[string]*Schema{
     "name": NewSchema(IsStringValidator).Required(),
@@ -323,6 +369,58 @@ schema := NewSchema(IsStringValidator).Required()
 definition := schema.ToDefinition()  // Convert for use with old code
 ```
 
+## Builder Pattern (Recommended)
+
+The new Schema API includes a powerful builder pattern using `NewField()`:
+
+### Benefits
+- ✅ Clean, inline field definitions
+- ✅ No intermediate variables needed
+- ✅ Excellent for complex schemas with many fields
+- ✅ Clear separation of field name from validation rules
+- ✅ Method chaining for readability
+
+### Basic Usage
+```go
+schema := NewSchema().WithFields(
+    NewField("email").Required().WithValidators(IsStringValidator),
+    NewField("age").Optional().WithValidators(IsIntegerValidator),
+)
+```
+
+### With Nested Objects
+```go
+schema := NewSchema().WithFields(
+    NewField("name").Required().WithValidators(IsStringValidator),
+    NewField("address").Optional().WithSchema(
+        Object(map[string]*Schema{
+            "street": NewSchema(IsStringValidator).Required(),
+            "city":   NewSchema(IsStringValidator).Required(),
+        }),
+    ),
+)
+```
+
+### Complex Example
+```go
+schema := NewSchema().WithFields(
+    NewField("name").
+        Required().
+        WithValidators(
+            IsStringValidator,
+            MinLengthValidator(3),
+        ),
+    NewField("email").
+        Required().
+        WithValidators(IsStringValidator),
+    NewField("tags").
+        Optional().
+        WithSchema(
+            Array(NewSchema(IsStringValidator).Required()),
+        ),
+).WithExtra(ExtraForbid)
+```
+
 ## Migration Checklist
 
 - [ ] Replace `Definition` with `Schema` or `NewSchema()`
@@ -332,7 +430,8 @@ definition := schema.ToDefinition()  // Convert for use with old code
 - [ ] Replace `Fields: &map[string]Definition` with `Fields: map[string]*Schema`
 - [ ] Replace `ListOf` with `Items`
 - [ ] Replace `AcceptExtraProperty` with `Extra: ExtraForbid` or `Extra: ExtraIgnore`
-- [ ] Consider using convenience helpers: `Object()`, `Array()`
+- [ ] Consider using `NewField()` builder pattern for cleaner code
+- [ ] Or use convenience helpers: `Object()`, `Array()` with maps
 - [ ] Update validation calls to use schema methods
 
 ## Need Help?

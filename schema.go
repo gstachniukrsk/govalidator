@@ -91,16 +91,103 @@ func Array(itemSchema *Schema) *Schema {
 	}
 }
 
+// Field represents a field definition with its name and schema.
+// This is used with the builder pattern for defining object fields.
+type Field struct {
+	name   string
+	schema *Schema
+}
+
+// NewField creates a new field definition with the given name.
+// Use the fluent methods to configure the field's validation.
+//
+// Example:
+//
+//	field := NewField("email").Required().WithValidators(IsStringValidator)
+func NewField(name string) *Field {
+	return &Field{
+		name:   name,
+		schema: NewSchema(),
+	}
+}
+
+// Required marks this field as required (non-null).
+// Returns the field for method chaining.
+func (f *Field) Required() *Field {
+	f.schema.Required()
+	return f
+}
+
+// Optional marks this field as optional (nullable).
+// Returns the field for method chaining.
+func (f *Field) Optional() *Field {
+	f.schema.Optional()
+	return f
+}
+
+// WithValidators sets the validators for this field.
+// Returns the field for method chaining.
+//
+// Example:
+//
+//	NewField("age").Required().WithValidators(IsIntegerValidator, MinValidator(0))
+func (f *Field) WithValidators(validators ...ContextValidator) *Field {
+	f.schema.Validators = validators
+	return f
+}
+
+// WithSchema sets a complete schema for this field.
+// This is useful for nested objects or arrays.
+// Returns the field for method chaining.
+//
+// Example:
+//
+//	NewField("address").WithSchema(
+//	    Object(map[string]*Schema{
+//	        "street": NewSchema(IsStringValidator).Required(),
+//	    }),
+//	)
+func (f *Field) WithSchema(schema *Schema) *Field {
+	f.schema = schema
+	return f
+}
+
 // WithFields sets the Fields map (fluent style).
 // Returns the schema for method chaining.
 //
-// Example:
+// Example with map:
 //
 //	schema := NewSchema().WithFields(map[string]*Schema{
 //	    "name": NewSchema(IsStringValidator).Required(),
 //	})
-func (s *Schema) WithFields(fields map[string]*Schema) *Schema {
-	s.Fields = fields
+//
+// Example with builder pattern:
+//
+//	schema := NewSchema().WithFields(
+//	    NewField("name").Required().WithValidators(IsStringValidator),
+//	    NewField("age").Optional().WithValidators(IsIntegerValidator),
+//	)
+func (s *Schema) WithFields(fields ...any) *Schema {
+	// Handle two cases:
+	// 1. Single map[string]*Schema argument (backward compatible)
+	// 2. Multiple Field arguments (new builder pattern)
+
+	if len(fields) == 1 {
+		if fieldMap, ok := fields[0].(map[string]*Schema); ok {
+			s.Fields = fieldMap
+			return s
+		}
+	}
+
+	// Convert Field builders to map
+	fieldMap := make(map[string]*Schema)
+	for _, f := range fields {
+		if field, ok := f.(*Field); ok {
+			fieldMap[field.name] = field.schema
+		}
+	}
+
+	s.Fields = fieldMap
 	return s
 }
 
