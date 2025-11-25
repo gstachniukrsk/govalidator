@@ -288,6 +288,8 @@ valid, errs := schema.ValidateFlat(
 
 ## Predefined Validators
 
+### Type Validators
+
 | Validator | Description |
 |-----------|-------------|
 | `IsStringValidator` | Validates that value is a string |
@@ -295,18 +297,46 @@ valid, errs := schema.ValidateFlat(
 | `IsBooleanValidator` | Validates that value is a boolean |
 | `IsListValidator` | Validates that value is an array ([]any) |
 | `IsMapValidator` | Validates that value is a map (map[string]any) |
+| `NumberValidator` | Validates value is a number (int or float) |
+
+### Numeric Validators
+
+| Validator | Description |
+|-----------|-------------|
 | `FloatValidator(precision)` | Validates float with maximum precision |
-| `MinLengthValidator(min)` | Validates string has minimum length (counts runes, not bytes) |
-| `MaxLengthValidator(max)` | Validates string has maximum length (counts runes, not bytes) |
 | `MinFloatValidator(min)` | Validates number is >= minimum |
 | `MaxFloatValidator(max)` | Validates number is <= maximum |
+
+### String Validators
+
+| Validator | Description |
+|-----------|-------------|
+| `MinLengthValidator(min)` | Validates string has minimum length (counts runes, not bytes) |
+| `MaxLengthValidator(max)` | Validates string has maximum length (counts runes, not bytes) |
+| `UpperCaseValidator` | Validates string is uppercase |
+| `LowerCaseValidator` | Validates string is lowercase |
+| `RegexpValidator(pattern)` | Validates string matches regular expression |
+
+### Format Validators
+
+| Validator | Description |
+|-----------|-------------|
+| `EmailValidator` | Validates RFC 5322 compliant email addresses |
+| `URLValidator` | Validates HTTP/HTTPS/FTP URLs with proper scheme and host |
+| `IPv4Validator` | Validates IPv4 addresses (with or without CIDR notation) |
+| `IPv6Validator` | Validates IPv6 addresses (with or without CIDR notation) |
+| `UUIDValidator` | Validates UUID v1-v5 format (8-4-4-4-12 hex digits) |
+| `JSONValidator` | Validates JSON strings (objects, arrays, primitives) |
+| `Base64Validator` | Validates base64 encoded strings (standard and URL-safe) |
+| `XIDValidator` | Validates XID (20-character globally unique IDs) |
+
+### Collection Validators
+
+| Validator | Description |
+|-----------|-------------|
 | `MinSizeValidator(min, blocking)` | Validates array has minimum size |
 | `MaxSizeValidator(max, blocking)` | Validates array has maximum size |
 | `OneOfValidator(values...)` | Validates value is one of the allowed values |
-| `RegexpValidator(pattern)` | Validates string matches regular expression |
-| `UpperCaseValidator` | Validates string is uppercase |
-| `LowerCaseValidator` | Validates string is lowercase |
-| `NumberValidator` | Validates value is a number (int or float) |
 
 ## Custom Validators
 
